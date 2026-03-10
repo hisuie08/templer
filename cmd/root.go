@@ -59,5 +59,6 @@ func init() {
 
 	rootCmd.Flags().StringVar(&outArg, "out", "", "output file or directory")
 
-	rootCmd.Flags().StringArrayVar(&setValues, "set", nil, "set values key=value")
+	// rootCmd.Flags().StringArrayVar(&setValues, "set", nil, "set values key=value")
+
 }
