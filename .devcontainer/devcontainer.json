@@ -1,0 +1,14 @@
+{
+    "name": "GO Development Container",
+    "build": {
+        "context": "..",
+        "dockerfile": "../dev.Dockerfile"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "golang.go"
+            ]
+        }
+    }
+}
