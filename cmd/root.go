@@ -3,42 +3,21 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
-	"templer/internal/engine"
-	"templer/internal/input"
+	"templer/internal/option"
+	"templer/internal/process"
 
 	"github.com/spf13/cobra"
 )
 
-var (
-	tmplArg     string
-	tmplDir     string
-	inputArg    string
-	inputFormat string
-	outArg      string
-	setValues   []string
-)
+var opt option.Option
 var rootCmd = &cobra.Command{
-	Use: "templer",
+	Args: cobra.ExactArgs(1),
+	Use:  "templer <template> [OPTIONS]",
 	RunE: func(cmd *cobra.Command, args []string) error {
-
-		data, err := input.Load(inputArg, inputFormat, setValues)
-		if err != nil {
-			return err
-		}
-
-		if tmplDir != "" {
-			return engine.RenderDir(tmplDir, outArg, data)
-		}
-		if tmplArg == "" {
-			wd, err := os.Getwd()
-			if err != nil {
-				return err
-			}
-			tmplArg = filepath.Join(wd, "template.tmpl")
-		}
-		return engine.RenderOne(tmplArg, outArg, data)
+		opt.TmplArg = args[0]
+		p := process.New(opt)
+		return p.Run()
 	},
 }
 
@@ -50,15 +29,11 @@ func Execute() {
 }
 
 func init() {
-
-	rootCmd.Flags().StringVar(&tmplArg, "tmpl", "", "template file or string")
-	rootCmd.Flags().StringVar(&tmplDir, "tmpl-dir", "", "template directory")
-
-	rootCmd.Flags().StringVar(&inputArg, "input", "", "input file or string")
-	rootCmd.Flags().StringVar(&inputFormat, "input-format", "", "json|yaml")
-
-	rootCmd.Flags().StringVar(&outArg, "out", "", "output file or directory")
-
-	// rootCmd.Flags().StringArrayVar(&setValues, "set", nil, "set values key=value")
+	rootCmd.Flags().StringVar(&opt.TmplType, "tmpl-type", "", "template type file|dir|string")
+	rootCmd.Flags().StringArrayVarP(&opt.DataArgs, "data", "d", []string{}, "data file or string")
+	rootCmd.Flags().StringVar(&opt.DataFormat, "data-format", "", "json|yaml")
+	rootCmd.Flags().StringVar(&opt.TmplSuffix, "suffix", ".tmpl", "template file suffix")
+	rootCmd.Flags().StringVar(&opt.OutArg, "out", "", "output file or directory")
+	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "set values key=value")
 
 }
