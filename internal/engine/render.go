@@ -11,12 +11,17 @@ import (
 	"github.com/Masterminds/sprig/v3"
 )
 
+func newTmpl(name string) *template.Template {
+	return template.New(name).Funcs(sprig.FuncMap()).Funcs(files.Funcs())
+}
 func RenderOne(tmplArg, out string, data map[string]any) error {
-
-	tmplStr := loadTemplate(tmplArg)
-	t := template.New("templer").
-		Funcs(sprig.FuncMap()).
-		Funcs(files.Funcs()) // readFile
+	tmplStr := func(arg string) string {
+		if b, err := os.ReadFile(arg); err == nil {
+			return string(b)
+		}
+		return arg
+	}(tmplArg)
+	t := newTmpl("main")
 	t, err := t.Parse(tmplStr)
 	if err != nil {
 		return err
@@ -35,32 +40,27 @@ func RenderOne(tmplArg, out string, data map[string]any) error {
 	return t.Execute(w, data)
 }
 
-func RenderDir(tmplDir, outDir string, data map[string]any) error {
-
+func RenderDir(tmplDir, outDir string, data map[string]any, suffix string) error {
 	if outDir == "" {
-		outDir = "out"
+		outDir = tmplDir
 	}
 
 	return filepath.WalkDir(tmplDir, func(path string, d os.DirEntry, err error) error {
-
 		if err != nil {
 			return err
 		}
-
 		if d.IsDir() {
 			return nil
 		}
-
-		if !strings.HasSuffix(path, ".tmpl") {
+		if !strings.HasSuffix(path, suffix) {
 			return nil
 		}
-
 		rel, err := filepath.Rel(tmplDir, path)
 		if err != nil {
 			return err
 		}
 
-		outPath := filepath.Join(outDir, strings.TrimSuffix(rel, ".tmpl"))
+		outPath := filepath.Join(outDir, strings.TrimSuffix(rel, suffix))
 
 		err = os.MkdirAll(filepath.Dir(outPath), 0755)
 		if err != nil {
@@ -72,9 +72,7 @@ func RenderDir(tmplDir, outDir string, data map[string]any) error {
 			return err
 		}
 
-		t := template.New(rel).
-			Funcs(sprig.FuncMap()).
-			Funcs(files.Funcs())
+		t := newTmpl(rel)
 
 		t, err = t.Parse(string(tmplBytes))
 		if err != nil {
