@@ -6,6 +6,7 @@ mkdir -p build
 
 echo "==> build templer"
 go build \
+  -buildvcs=false \
   -ldflags="-s -w" \
   -o build/templer
 chmod +x build/templer
