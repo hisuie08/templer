@@ -35,8 +35,10 @@ func RenderOne(tmplArg, out string, data map[string]any) error {
 		}
 		defer f.Close()
 		w = f
+	} else {
+		// Standard output ends with a newline character.
+		defer w.WriteString("\n")
 	}
-	defer w.WriteString("\n")
 	return t.Execute(w, data)
 }
 
