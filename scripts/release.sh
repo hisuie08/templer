@@ -27,6 +27,5 @@ for platform in "${platforms[@]}"; do
   GOOS=$GOOS GOARCH=$GOARCH \
   go build \
     -ldflags="-s -w -X main.version=$VERSION" \
-    -o "dist/${BIN}_${VERSION}_${GOOS}_${GOARCH}${ext}" \
-    ./cmd/$BIN
+    -o "dist/${BIN}_${VERSION}_${GOOS}_${GOARCH}${ext}"
 done
