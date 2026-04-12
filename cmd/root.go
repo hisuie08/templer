@@ -29,11 +29,11 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().StringVar(&opt.TmplType, "tmpl-type", "", "template type file|dir|string")
+	rootCmd.Flags().StringVarP(&opt.TmplType, "tmpl-type", "t", "", "template type file|dir|string")
 	rootCmd.Flags().StringArrayVarP(&opt.DataArgs, "data", "d", []string{}, "data file or string")
-	rootCmd.Flags().StringVar(&opt.DataFormat, "data-format", "", "json|yaml")
-	rootCmd.Flags().StringVar(&opt.TmplSuffix, "suffix", ".tmpl", "template file suffix")
-	rootCmd.Flags().StringVar(&opt.OutArg, "out", "", "output file or directory")
+	rootCmd.Flags().StringVarP(&opt.DataFormat, "data-format", "f", "", "json|yaml")
+	rootCmd.Flags().StringVarP(&opt.TmplSuffix, "suffix", "s", ".tmpl", "template file suffix")
+	rootCmd.Flags().StringVarP(&opt.OutArg, "out", "o", "", "output file or directory")
 	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "set values key=value")
 
 }
