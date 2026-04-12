@@ -11,7 +11,13 @@ import (
 func Load(args []string, format string, sets []string) (map[string]any, error) {
 
 	data := map[string]any{}
-
+	envs := os.Environ()
+	for _, s := range envs {
+		kv := strings.SplitN(s, "=", 2)
+		if len(kv) == 2 {
+			data[kv[0]] = kv[1]
+		}
+	}
 	raw := ""
 	for _, arg := range args {
 		if b, err := os.ReadFile(arg); err == nil {
