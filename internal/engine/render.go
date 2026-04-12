@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,12 +22,6 @@ func RenderOne(tmplArg, out string, data map[string]any) error {
 		}
 		return arg
 	}(tmplArg)
-	t := newTmpl("main")
-	t, err := t.Parse(tmplStr)
-	if err != nil {
-		return err
-	}
-
 	var w = os.Stdout
 	if out != "" {
 		f, err := os.Create(out)
@@ -36,8 +31,14 @@ func RenderOne(tmplArg, out string, data map[string]any) error {
 		defer f.Close()
 		w = f
 	} else {
-		// Standard output ends with a newline character.
-		defer w.WriteString("\n")
+		if !strings.HasSuffix(tmplStr, "\n") {
+			tmplStr = fmt.Sprintln(tmplStr)
+		}
+	}
+	t := newTmpl("main")
+	t, err := t.Parse(tmplStr)
+	if err != nil {
+		return err
 	}
 	return t.Execute(w, data)
 }
