@@ -5,11 +5,15 @@ BUILD_DIR := build
 
 help:
 	@echo "make build        - build binary"
+	@echo "make release 	 - release version(use for CI)"
 	@echo "make test-all     - all tests"
 	@echo "make clean        - clean build"
 
 build:
 	@scripts/build.sh
+
+release:
+	@scripts/release.sh
 
 test-all:
 	@scripts/test.sh ./...
