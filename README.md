@@ -12,5 +12,5 @@ chmod +x ./build/templer
 ```
 mv ./build/templer /sample
 cd sample
-./templer --tmpl ./template.tmpl --input ./data.yml
+./templer ./template.tmpl --data ./data.yml
 ```
