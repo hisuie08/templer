@@ -1,11 +1,27 @@
 # templer
 go製cliテンプレートエンジン「テンプラ🍤」
 
-# installation
+# Installation
 
+
+### Supported platforms
+
+|OS|archtechure|
+|-|-|
+|windows|[amd64](https://github.com/hisuie08/templer/releases/latest/windows_amd64.exe)|
+|linux|[amd64](https://github.com/hisuie08/templer/releases/latest/linux_amd64)|
+|linux|[arm64](https://github.com/hisuie08/templer/releases/latest/linux_arm64)|
+
+Or you can find [previous releases](https://github.com/hisuie08/templer/releases)
+
+In either case, you may need to run 
+
+`chmod +x <downloaded file>`.
+
+## build yourself
+clone repogitory and run
 ```
-go build -o ./build/templer .
-chmod +x ./build/templer
+make build
 ```
 
 # example usage
