@@ -16,7 +16,8 @@ func New(o option.Option) process {
 	return process{opt: o}
 }
 func (p *process) Run() error {
-	data, err := data.Load(p.opt.DataArgs, p.opt.DataFormat, p.opt.SetValues)
+	data, err := data.Load(
+		p.opt.DataArgs, p.opt.DataFormat, p.opt.SetValues,p.opt.LoadEnv)
 	if err != nil {
 		return err
 	}

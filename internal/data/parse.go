@@ -8,20 +8,29 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func Load(args []string, format string, sets []string) (map[string]any, error) {
+func Load(args []string, format string, sets []string, loadEnv bool) (
+	map[string]any, error) {
 
 	data := map[string]any{}
-	envs := os.Environ()
-	for _, s := range envs {
-		kv := strings.SplitN(s, "=", 2)
-		if len(kv) == 2 {
-			data[kv[0]] = kv[1]
+	// read environments
+	if loadEnv {
+		envs := os.Environ()
+		for _, s := range envs {
+			kv := strings.SplitN(s, "=", 2)
+			if len(kv) == 2 {
+				data[kv[0]] = kv[1]
+			}
 		}
 	}
+	// load data
 	raw := ""
 	for _, arg := range args {
+		// Read the contents if it's a readable file
 		if b, err := os.ReadFile(arg); err == nil {
 			raw += "\n" + string(b)
+		} else {
+			// Continue as stdin string
+			raw += "\n" + arg
 		}
 		if raw != "" {
 			if format == "json" {

@@ -37,5 +37,6 @@ func init() {
 	rootCmd.Flags().StringVarP(&opt.TmplSuffix, "suffix", "s", ".tmpl", "template file suffix")
 	rootCmd.Flags().StringVarP(&opt.OutArg, "out", "o", "", "output file or directory")
 	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "set values key=value")
+	rootCmd.Flags().BoolVar(&opt.LoadEnv, "env", true, "load env")
 
 }
