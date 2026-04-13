@@ -2,6 +2,7 @@
 set -euo pipefail
 
 BIN="templer"
+VERSION="${VERSION:-dev}"
 
 mkdir -p dist
 
