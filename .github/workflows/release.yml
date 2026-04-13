@@ -28,9 +28,9 @@ jobs:
         run: chmod +x scripts/*.sh
 
       - name: Build (release)
-        run: make release
-        env:
-          VERSION: ${{ github.ref_name }}
+        run: |
+          export VERSION="$GITHUB_REF_NAME"
+          make release
 
       - name: List artifacts
         run: ls -lh dist
