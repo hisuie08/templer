@@ -8,8 +8,8 @@ go製cliテンプレートエンジン「テンプラ🍤」
 
 |OS|archtechure|
 |-|-|
-|windows|[amd64](https://github.com/hisuie08/templer/releases/latest/download/windows_amd64.exe)|
-|linux|[amd64](https://github.com/hisuie08/templer/releases/latest/download/linux_amd64)|
+|windows|[amd64](https://github.com/hisuie08/templer/releases/latest/download/templer_windows_amd64.exe)|
+|linux|[amd64](https://github.com/hisuie08/templer/releases/latest/download/templer_linux_amd64)|
 |linux|[arm64](https://github.com/hisuie08/templer/releases/latest/download/templer_linux_arm64)|
 
 Or you can find [previous releases](https://github.com/hisuie08/templer/releases)
