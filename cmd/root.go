@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Version = "dev"
 var opt option.Option
 var rootCmd = &cobra.Command{
 	Args: cobra.ExactArgs(1),
@@ -22,6 +23,7 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
+	rootCmd.Version = Version
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

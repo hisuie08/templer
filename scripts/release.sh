@@ -2,7 +2,6 @@
 set -euo pipefail
 
 BIN="templer"
-VERSION="${VERSION:-dev}"
 
 mkdir -p dist
 
@@ -26,6 +25,6 @@ for platform in "${platforms[@]}"; do
   CGO_ENABLED=0 \
   GOOS=$GOOS GOARCH=$GOARCH \
   go build \
-    -ldflags="-s -w -X main.version=$VERSION" \
+    -ldflags="-s -w -X templer/cmd.version=${VERSION}" \
     -o "dist/${BIN}_${VERSION}_${GOOS}_${GOARCH}${ext}"
 done
