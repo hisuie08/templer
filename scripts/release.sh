@@ -26,5 +26,5 @@ for platform in "${platforms[@]}"; do
   GOOS=$GOOS GOARCH=$GOARCH \
   go build \
     -ldflags="-s -w -X templer/cmd.version=${VERSION}" \
-    -o "dist/${BIN}_${VERSION}_${GOOS}_${GOARCH}${ext}"
+    -o "dist/${BIN}_${GOOS}_${GOARCH}${ext}"
 done
