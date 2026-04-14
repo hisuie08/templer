@@ -2,9 +2,9 @@ package process
 
 import (
 	"path/filepath"
-	"templer/internal/data"
-	"templer/internal/engine"
 	"templer/internal/option"
+	"templer/internal/parser"
+	"templer/internal/renderer"
 )
 
 type process struct {
@@ -12,20 +12,15 @@ type process struct {
 }
 
 func New(o option.Option) process {
-
 	return process{opt: o}
 }
 func (p *process) Run() error {
-	data, err := data.Load(
-		p.opt.DataArgs, p.opt.DataFormat, p.opt.SetValues,p.opt.LoadEnv)
-	if err != nil {
-		return err
-	}
-
+	parser := parser.New(p.opt)
+	data := parser.Parse()
 	if p.opt.TemplateType() == "dir" {
-		return engine.RenderDir(p.opt.TmplArg, p.opt.OutArg, data, p.opt.TmplSuffix)
+		return renderer.RenderDir(p.opt.TmplArg, p.opt.OutArg, data, p.opt.TmplSuffix)
 	}
-	return engine.RenderOne(p.opt.TmplArg, p.opt.OutArg, data)
+	return renderer.RenderOne(p.opt.TmplArg, p.opt.OutArg, data)
 }
 
 func getOutPath(p string) (string, error) {

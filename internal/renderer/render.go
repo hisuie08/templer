@@ -1,4 +1,4 @@
-package engine
+package renderer
 
 import (
 	"fmt"
@@ -15,6 +15,7 @@ import (
 func newTmpl(name string) *template.Template {
 	return template.New(name).Funcs(sprig.FuncMap()).Funcs(files.Funcs())
 }
+
 func RenderOne(tmplArg, out string, data map[string]any) error {
 	tmplStr := func(arg string) string {
 		if b, err := os.ReadFile(arg); err == nil {
@@ -76,7 +77,6 @@ func RenderDir(tmplDir, outDir string, data map[string]any, suffix string) error
 		}
 
 		t := newTmpl(rel)
-
 		t, err = t.Parse(string(tmplBytes))
 		if err != nil {
 			return err
