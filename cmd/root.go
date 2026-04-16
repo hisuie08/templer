@@ -14,7 +14,7 @@ var Version = "dev"
 var opt option.Option
 var rootCmd = &cobra.Command{
 	Args: cobra.ExactArgs(1),
-	Use:  "templer <template> [OPTIONS]",
+	Use:  "templer <template>",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		opt.TmplArg = args[0]
 		p := process.New(opt)
