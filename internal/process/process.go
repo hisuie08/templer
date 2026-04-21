@@ -18,9 +18,9 @@ func (p *process) Run() error {
 	parser := parser.New(p.opt)
 	data := parser.Parse()
 	if p.opt.TemplateType() == "dir" {
-		return renderer.RenderDir(p.opt.TmplArg, p.opt.OutArg, data, p.opt.TmplSuffix)
+		return renderer.RenderDir(p.opt, data)
 	}
-	return renderer.RenderOne(p.opt.TmplArg, p.opt.OutArg, data)
+	return renderer.RenderOne(p.opt, data)
 }
 
 func getOutPath(p string) (string, error) {
