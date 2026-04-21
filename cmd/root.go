@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	"templer/internal/option"
@@ -13,15 +14,37 @@ import (
 var Version = "dev"
 var opt option.Option
 var rootCmd = &cobra.Command{
-	Args: cobra.ExactArgs(1),
+	Args: cobra.MaximumNArgs(1),
 	Use:  "templer <template>",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		opt.TmplArg = args[0]
+		if len(args) > 0 {
+			opt.TmplArg = args[0]
+		} else {
+			b, err := readStdin()
+			if err != nil {
+				return err
+			}
+			if len(b) == 0 {
+				return cmd.Root().Help()
+			}
+			opt.TmplArg = string(b)
+		}
 		p := process.New(opt)
 		return p.Run()
 	},
 }
 
+func readStdin() ([]byte, error) {
+	stat, err := os.Stdin.Stat()
+	if err != nil {
+		return nil, err
+	}
+	// file or pipe
+	if (stat.Mode() & os.ModeCharDevice) == 0 {
+		return io.ReadAll(os.Stdin)
+	}
+	return nil, nil
+}
 func Execute() {
 	rootCmd.Version = Version
 	if err := rootCmd.Execute(); err != nil {
@@ -31,7 +54,7 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().StringVarP(&opt.TmplType, "tmpl-type", "t", "", "template type file|dir|string")
+	rootCmd.Flags().StringVarP(&opt.TmplType, "tmpl-type", "t", "", "ensure template type file|dir|string")
 	rootCmd.Flags().StringArrayVarP(&opt.DataArgs, "data", "d", []string{}, "data file or string")
 	rootCmd.Flags().StringVarP(&opt.DataFormat, "data-format", "f", "", "json|yaml")
 	rootCmd.Flags().StringVarP(&opt.TmplSuffix, "suffix", "s", ".tmpl", "template file suffix")
