@@ -12,26 +12,32 @@ func TestOption_TemplateType(t *testing.T) {
 	os.Mkdir(dirname, 0o666)
 	os.Create(filename)
 	tests := []struct {
-		name  string
-		arg   string
-		ttype string
-		want  string
+		name        string
+		arg         string
+		literal     bool
+		wantDir     bool
+		wantLiteral bool
 	}{
-		{name: "string", arg: "test", ttype: "string", want: "string"},
-		{name: "file", arg: filename, ttype: "file", want: "file"},
-		{name: "dir", arg: dirname, ttype: "dir", want: "dir"},
-		{name: "u-string", arg: "test", want: "string"},
-		{name: "u-file", arg: filename, want: "file"},
-		{name: "u-dir", arg: dirname, want: "dir"},
+		{name: "string", arg: "test", wantDir: false, wantLiteral: true},
+		{name: "file", arg: filename, wantDir: false, wantLiteral: false},
+		{name: "dir", arg: dirname, wantDir: true, wantLiteral: false},
+		{name: "literal-file", arg: filename, literal: true, wantDir: false, wantLiteral: true},
+		{name: "literal-dir", arg: dirname, literal: true, wantDir: false, wantLiteral: true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			var o Option
-			o.TmplType = tt.ttype
-			o.TmplArg = tt.arg
-			got := o.TemplateType()
-			if got != tt.want {
-				t.Errorf("TemplateType() = %v, want %v", got, tt.want)
+			o.Template.AsLiteral = tt.literal || false
+			o.Template.Value = tt.arg
+			fi, err := os.Stat(tt.arg)
+			if err != nil {
+				if !tt.wantLiteral {
+					t.Fatalf("expected literal: %v but not", tt.wantLiteral)
+				}
+			} else {
+				if !tt.literal && fi.IsDir() != tt.wantDir {
+					t.Errorf("expected dir: %v but got %v", fi.IsDir(), tt.wantDir)
+				}
 			}
 		})
 	}
