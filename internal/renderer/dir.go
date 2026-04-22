@@ -50,7 +50,6 @@ func RenderDir(opt option.Option, data map[string]any) error {
 		}
 
 		if opt.OutArg == "" {
-			tmplStr = fmt.Sprintf("%s\n%s", outPath, tmplStr)
 			if !strings.HasSuffix(tmplStr, "\n") {
 				tmplStr = fmt.Sprintln(tmplStr)
 			}
