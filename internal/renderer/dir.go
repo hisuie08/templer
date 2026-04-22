@@ -11,27 +11,27 @@ import (
 func RenderDir(opt option.Option, data map[string]any) error {
 	outDir := func() string {
 		if opt.OutArg == "" {
-			return opt.TmplArg
+			return opt.Template.Value
 		}
 		return opt.OutArg
 	}()
 
-	return filepath.WalkDir(opt.TmplArg, func(path string, d os.DirEntry, err error) error {
+	return filepath.WalkDir(opt.Template.Value, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 		if d.IsDir() {
 			return nil
 		}
-		if !strings.HasSuffix(path, opt.TmplSuffix) {
+		if !strings.HasSuffix(path, opt.Template.Suffix) {
 			return nil
 		}
-		rel, err := filepath.Rel(opt.TmplArg, path)
+		rel, err := filepath.Rel(opt.Template.Value, path)
 		if err != nil {
 			return err
 		}
 
-		outPath := filepath.Join(outDir, strings.TrimSuffix(rel, opt.TmplSuffix))
+		outPath := filepath.Join(outDir, strings.TrimSuffix(rel, opt.Template.Suffix))
 
 		f, err := createFile(outPath)
 		defer f.Close()

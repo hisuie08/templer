@@ -1,6 +1,7 @@
 package process
 
 import (
+	"os"
 	"path/filepath"
 	"templer/internal/option"
 	"templer/internal/parser"
@@ -15,12 +16,19 @@ func New(o option.Option) process {
 	return process{opt: o}
 }
 func (p *process) Run() error {
-	parser := parser.New(p.opt)
-	data := parser.Parse()
-	if p.opt.TemplateType() == "dir" {
-		return renderer.RenderDir(p.opt, data)
+	data := parser.New(p.opt).Parse()
+	if p.opt.Template.AsLiteral {
+		return renderer.RenderOne(p.opt, data)
 	}
-	return renderer.RenderOne(p.opt, data)
+	fi, err := os.Stat(p.opt.Template.Value)
+	if err != nil {
+		return err
+	}
+	if fi.IsDir() {
+		return renderer.RenderDir(p.opt, data)
+	} else {
+		return renderer.RenderOne(p.opt, data)
+	}
 }
 
 func getOutPath(p string) (string, error) {
