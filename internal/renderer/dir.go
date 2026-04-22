@@ -28,16 +28,18 @@ func RenderDir(opt option.Option, data map[string]any) error {
 			return nil
 		}
 
+		rel, err := filepath.Rel(opt.Template.Value, path)
+		if err != nil {
+			return err
+		}
 		b, err := os.ReadFile(path)
 		if err != nil {
 			return err
 		}
 		tmplStr := string(b)
-		outPath, err := filepath.Abs(filepath.Join(outDir, strings.TrimSuffix(
-			filepath.Base(path), opt.Template.Suffix)))
-		if err != nil {
-			return err
-		}
+		outPath := filepath.Join(outDir, strings.TrimSuffix(
+			rel, opt.Template.Suffix))
+
 		var w = os.Stdout
 		if opt.OutArg != "" {
 			w, err = createFile(outPath)
