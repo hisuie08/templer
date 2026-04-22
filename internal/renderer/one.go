@@ -8,13 +8,13 @@ import (
 )
 
 func resolveTpl(opt option.Option) string {
-	if opt.TmplType == "string" {
-		return opt.TmplArg
+	if opt.Template.AsLiteral {
+		return opt.Template.Value
 	}
-	if b, err := os.ReadFile(opt.TmplArg); err == nil {
+	if b, err := os.ReadFile(opt.Template.Value); err == nil {
 		return string(b)
 	}
-	return opt.TmplArg
+	return opt.Template.Value
 }
 
 func RenderOne(opt option.Option, data map[string]any) error {

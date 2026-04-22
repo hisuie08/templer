@@ -3,14 +3,14 @@ package renderer
 import (
 	"os"
 	"path/filepath"
-	"templer/internal/files"
+	"templer/internal/funcs"
 	"text/template"
 
 	"github.com/Masterminds/sprig/v3"
 )
 
 func newTmpl(name string) *template.Template {
-	return template.New(name).Funcs(sprig.FuncMap()).Funcs(files.Funcs())
+	return template.New(name).Funcs(sprig.FuncMap()).Funcs(funcs.Funcs())
 }
 
 func createFile(path string) (*os.File, error) {
