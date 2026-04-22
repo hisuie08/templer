@@ -18,7 +18,7 @@ var rootCmd = &cobra.Command{
 	Use:  "templer <template>",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
-			opt.TmplArg = args[0]
+			opt.Template.Value = args[0]
 		} else {
 			b, err := readStdin()
 			if err != nil {
@@ -27,7 +27,7 @@ var rootCmd = &cobra.Command{
 			if len(b) == 0 {
 				return cmd.Root().Help()
 			}
-			opt.TmplArg = string(b)
+			opt.Template.Value = string(b)
 		}
 		p := process.New(opt)
 		return p.Run()
@@ -54,10 +54,10 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().StringVarP(&opt.TmplType, "tmpl-type", "t", "", "ensure template type file|dir|string")
+	rootCmd.Flags().BoolVar(&opt.Template.AsLiteral, "literal", false, "ensure template as string")
 	rootCmd.Flags().StringArrayVarP(&opt.DataArgs, "data", "d", []string{}, "data file or string")
 	rootCmd.Flags().StringVarP(&opt.DataFormat, "data-format", "f", "", "json|yaml")
-	rootCmd.Flags().StringVarP(&opt.TmplSuffix, "suffix", "s", ".tmpl", "template file suffix")
+	rootCmd.Flags().StringVarP(&opt.Template.Suffix, "suffix", "s", ".tmpl", "template file suffix")
 	rootCmd.Flags().StringVarP(&opt.OutArg, "out", "o", "", "output file or directory")
 	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "Add K=V format entries file|string")
 	rootCmd.Flags().BoolVar(&opt.LoadEnv, "env", true, "load env")
