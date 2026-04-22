@@ -56,7 +56,7 @@ func Execute() {
 func init() {
 	rootCmd.Flags().BoolVar(&opt.Template.AsLiteral, "literal", false, "ensure template as string")
 	rootCmd.Flags().StringArrayVarP(&opt.DataArgs, "data", "d", []string{}, "data file or string")
-	rootCmd.Flags().StringVarP(&opt.DataFormat, "data-format", "f", "", "json|yaml")
+	rootCmd.Flags().StringVar(&opt.DataFormat, "data-format", "", "json|yaml")
 	rootCmd.Flags().StringVarP(&opt.Template.Suffix, "suffix", "s", ".tmpl", "template file suffix")
 	rootCmd.Flags().StringVarP(&opt.OutArg, "out", "o", "", "output file or directory")
 	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "Add K=V format entries file|string")
