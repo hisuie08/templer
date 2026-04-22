@@ -14,3 +14,4 @@ type Template struct {
 	AsLiteral bool
 	Suffix    string
 }
+const OutSibling="__SIBLING__"

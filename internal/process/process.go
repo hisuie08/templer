@@ -18,16 +18,19 @@ func New(o option.Option) process {
 func (p *process) Run() error {
 	data := parser.New(p.opt).Parse()
 	if p.opt.Template.AsLiteral {
-		return renderer.RenderOne(p.opt, data)
+		return renderer.RenderStr(p.opt, data)
 	}
 	fi, err := os.Stat(p.opt.Template.Value)
 	if err != nil {
+		if os.IsNotExist(err) {
+			return renderer.RenderStr(p.opt, data)
+		}
 		return err
 	}
 	if fi.IsDir() {
 		return renderer.RenderDir(p.opt, data)
 	} else {
-		return renderer.RenderOne(p.opt, data)
+		return renderer.RenderFile(p.opt, data)
 	}
 }
 

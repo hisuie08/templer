@@ -1,6 +1,7 @@
 package renderer
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,7 +11,7 @@ import (
 
 func RenderDir(opt option.Option, data map[string]any) error {
 	outDir := func() string {
-		if opt.OutArg == "" {
+		if opt.OutArg == option.OutSibling {
 			return opt.Template.Value
 		}
 		return opt.OutArg
@@ -26,29 +27,33 @@ func RenderDir(opt option.Option, data map[string]any) error {
 		if !strings.HasSuffix(path, opt.Template.Suffix) {
 			return nil
 		}
-		rel, err := filepath.Rel(opt.Template.Value, path)
+
+		b, err := os.ReadFile(path)
 		if err != nil {
 			return err
 		}
-
-		outPath := filepath.Join(outDir, strings.TrimSuffix(rel, opt.Template.Suffix))
-
-		f, err := createFile(outPath)
-		defer f.Close()
+		tmplStr := string(b)
+		outPath, err := filepath.Abs(filepath.Join(outDir, strings.TrimSuffix(
+			filepath.Base(path), opt.Template.Suffix)))
 		if err != nil {
 			return err
 		}
-
-		tmplBytes, err := os.ReadFile(path)
-		if err != nil {
-			return err
+		var w = os.Stdout
+		if opt.OutArg != "" {
+			w, err = createFile(outPath)
+			if err != nil {
+				return err
+			}
+			defer w.Close()
 		}
 
-		t, err := newTmpl(rel).Parse(string(tmplBytes))
-		if err != nil {
-			return err
+		if opt.OutArg == "" {
+			tmplStr = fmt.Sprintf("%s\n%s", outPath, tmplStr)
+			if !strings.HasSuffix(tmplStr, "\n") {
+				tmplStr = fmt.Sprintln(tmplStr)
+			}
 		}
 
-		return t.Execute(f, data)
+		return render(path, string(tmplStr), data, w)
 	})
 }
