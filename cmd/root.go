@@ -57,7 +57,7 @@ func init() {
 	rootCmd.Flags().StringArrayVarP(&opt.DataArgs, "data", "d", []string{}, "data file or string")
 	rootCmd.Flags().StringVar(&opt.DataFormat, "data-format", "", "json|yaml")
 	rootCmd.Flags().StringVarP(&opt.Template.Suffix, "suffix", "s", ".tmpl", "template file suffix")
-	rootCmd.Flags().StringVarP(&opt.OutArg, "out", "o", "", "output path")
+	rootCmd.Flags().StringVarP(&opt.OutArg, "out", "o", "", "output path\nuse <template> path with the suffix trimmed when no arguments")
 	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "Add K=V format entries file|string")
 	rootCmd.Flags().BoolVar(&opt.LoadEnv, "env", true, "load env")
 	rootCmd.Flag("out").NoOptDefVal = option.OutSibling

@@ -1,8 +1,10 @@
 package process
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"templer/internal/option"
 	"templer/internal/parser"
 	"templer/internal/renderer"
@@ -16,6 +18,9 @@ func New(o option.Option) process {
 	return process{opt: o}
 }
 func (p *process) Run() error {
+	if !strings.HasPrefix(p.opt.Template.Suffix, ".") {
+		p.opt.Template.Suffix = fmt.Sprintf(".%s", p.opt.Template.Suffix)
+	}
 	data := parser.New(p.opt).Parse()
 	if p.opt.Template.AsLiteral {
 		return renderer.RenderStr(p.opt, data)
