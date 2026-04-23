@@ -9,9 +9,16 @@ import (
 )
 
 func RenderFile(opt option.Option, data map[string]any) error {
-	outDir := func() string {
+	outPath := func() string {
+		filename := strings.TrimSuffix(
+			filepath.Base(opt.Template.Value), opt.Template.Suffix)
 		if opt.OutArg == option.OutSibling {
-			return filepath.Dir(opt.Template.Value)
+			return filepath.Join(filepath.Dir(opt.Template.Value), filename)
+		}
+		if i, err := os.Stat(opt.OutArg); err == nil {
+			if i.IsDir() {
+				return filepath.Join(opt.OutArg, filename)
+			}
 		}
 		return opt.OutArg
 	}()
@@ -24,27 +31,12 @@ func RenderFile(opt option.Option, data map[string]any) error {
 		)
 	}
 	tmplStr := string(b)
-	outPath := filepath.Join(outDir, strings.TrimSuffix(
-		filepath.Base(opt.Template.Value), opt.Template.Suffix))
 
-	var w = os.Stdout
-	if opt.OutArg != "" {
-		if i,err:=os.Stat(outPath);err==nil{
-			if i.IsDir(){
-				outPath=filepath.Join(outPath,filepath.Base(opt.Template.Value))
-			}
-		}
-		w, err = createFile(outPath)
-		if err != nil {
-			return err
-		}
-		defer w.Close()
+	w, err := outWriter(outPath, opt.OutArg)
+	if err != nil {
+		return err
 	}
-	if opt.OutArg == "" {
-		tmplStr = fmt.Sprintf("%s\n%s", outPath, tmplStr)
-		if !strings.HasSuffix(tmplStr, "\n") {
-			tmplStr = fmt.Sprintln(tmplStr)
-		}
-	}
-	return render("", tmplStr, data, w)
+	defer w.Close()
+
+	return render("", fixForOut(tmplStr, opt.OutArg), data, w)
 }

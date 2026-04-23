@@ -1,7 +1,6 @@
 package renderer
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,7 +15,6 @@ func RenderDir(opt option.Option, data map[string]any) error {
 		}
 		return opt.OutArg
 	}()
-
 	return filepath.WalkDir(opt.Template.Value, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -40,21 +38,11 @@ func RenderDir(opt option.Option, data map[string]any) error {
 		outPath := filepath.Join(outDir, strings.TrimSuffix(
 			rel, opt.Template.Suffix))
 
-		var w = os.Stdout
-		if opt.OutArg != "" {
-			w, err = createFile(outPath)
-			if err != nil {
-				return err
-			}
-			defer w.Close()
+		w, err := outWriter(outPath, opt.OutArg)
+		if err != nil {
+			return err
 		}
-
-		if opt.OutArg == "" {
-			if !strings.HasSuffix(tmplStr, "\n") {
-				tmplStr = fmt.Sprintln(tmplStr)
-			}
-		}
-
-		return render(path, string(tmplStr), data, w)
+		defer w.Close()
+		return render(path, fixForOut(tmplStr, opt.OutArg), data, w)
 	})
 }

@@ -1,10 +1,8 @@
 package renderer
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"templer/internal/option"
 )
 
@@ -20,20 +18,11 @@ func RenderStr(opt option.Option, data map[string]any) error {
 		return filepath.Join(wd, opt.OutArg)
 	}()
 	tmplStr := opt.Template.Value
-	var w = os.Stdout
-	if opt.OutArg != "" {
+	w, err := outWriter(outPath, opt.OutArg)
+	if err != nil {
+		return err
+	}
+	defer w.Close()
 
-		f, err := createFile(outPath)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		w = f
-	}
-	if opt.OutArg == "" {
-		if !strings.HasSuffix(tmplStr, "\n") {
-			tmplStr = fmt.Sprintln(tmplStr)
-		}
-	}
-	return render("out", tmplStr, data, w)
+	return render("out", fixForOut(tmplStr, opt.OutArg), data, w)
 }
