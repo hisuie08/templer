@@ -8,22 +8,6 @@ import (
 	"templer/internal/option"
 )
 
-func resolveTpl(opt option.Option) string {
-	if opt.Template.AsLiteral {
-		return opt.Template.Value
-	}
-	b, err := os.ReadFile(opt.Template.Value)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return opt.Template.Value
-		}
-	}
-	if err == nil {
-		return string(b)
-	}
-	return opt.Template.Value
-}
-
 func RenderStr(opt option.Option, data map[string]any) error {
 	outPath := func() string {
 		wd, err := os.Getwd()
