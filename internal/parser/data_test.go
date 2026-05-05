@@ -14,7 +14,7 @@ func Test_matchFile(t *testing.T) {
 		pattern string
 		want    int
 	}{
-		// TODO: Add test cases.
+		// TODO: テストのデータをなんとかする
 		{name: "sample", root: filepath.Join(cwd, "../../sample"),
 			pattern: "*.yml", want: 1},
 		{name: "testdata", root: filepath.Join(cwd, "../../testdata"),
