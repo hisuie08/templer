@@ -18,6 +18,10 @@ var rootCmd = &cobra.Command{
 	Args: cobra.MaximumNArgs(1),
 	Use:  "templer <template>",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		wd,err:=os.Getwd()
+		if err != nil {
+			return err
+		}
 		if len(args) > 0 {
 			opt.Template.Value = args[0]
 		} else {
@@ -37,6 +41,7 @@ var rootCmd = &cobra.Command{
 			return output.FileOut()
 		}()
 		var context = context.Context{
+			Root: wd,
 			Out: out,
 			Log: cmd.ErrOrStderr(),
 			Err: cmd.ErrOrStderr(),
