@@ -20,7 +20,10 @@ func (p *Process) Run() error {
 	if !strings.HasPrefix(p.Opt.Template.Suffix, ".") {
 		p.Opt.Template.Suffix = fmt.Sprintf(".%s", p.Opt.Template.Suffix)
 	}
-	data := parser.New(p.Opt).Parse()
+	data, err := parser.New(p.Opt, p.Ctx).Parse()
+	if err != nil {
+		return err
+	}
 	if p.Opt.Template.AsLiteral {
 		return renderer.Literal(p.Ctx, p.Opt, data).Render()
 	}

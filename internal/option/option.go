@@ -16,3 +16,5 @@ type Template struct {
 }
 
 const OutSibling = "__SIBLING__"
+
+const MetaString="*?[]"
