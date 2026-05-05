@@ -16,7 +16,7 @@ import (
 func render(name, input string, outPath string,
 	data map[string]any, out output.Output) error {
 	if out.IsStd() {
-
+		input = fixForOut(input)
 	}
 	t, err := newTmpl(name).Parse(input)
 	if err != nil {
