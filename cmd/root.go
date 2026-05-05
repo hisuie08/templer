@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"templer/internal/context"
 	"templer/internal/option"
+	"templer/internal/output"
 	"templer/internal/process"
 
 	"github.com/spf13/cobra"
@@ -28,7 +30,18 @@ var rootCmd = &cobra.Command{
 			}
 			opt.Template.Value = string(b)
 		}
-		p := process.New(opt)
+		out := func() output.Output {
+			if opt.OutArg == "" {
+				return output.StdOut(cmd.OutOrStdout())
+			}
+			return output.FileOut()
+		}()
+		var context = context.Context{
+			Out: out,
+			Log: cmd.ErrOrStderr(),
+			Err: cmd.ErrOrStderr(),
+		}
+		p := &process.Process{Ctx: context, Opt: opt}
 		return p.Run()
 	},
 }
