@@ -5,38 +5,41 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"templer/internal/context"
 	"templer/internal/option"
 )
 
-func RenderFile(opt option.Option, data map[string]any) error {
-	outPath := func() string {
-		filename := strings.TrimSuffix(
-			filepath.Base(opt.Template.Value), opt.Template.Suffix)
-		if opt.OutArg == option.OutSibling {
-			return filepath.Join(filepath.Dir(opt.Template.Value), filename)
+func (f *fileRenderer) fixPath() string {
+	filename := strings.TrimSuffix(
+		filepath.Base(f.opt.Template.Value), f.opt.Template.Suffix)
+	if f.opt.OutArg == option.OutSibling {
+		return filepath.Join(filepath.Dir(f.opt.Template.Value), filename)
+	}
+	if i, err := os.Stat(f.opt.OutArg); err == nil {
+		if i.IsDir() {
+			return filepath.Join(f.opt.OutArg, filename)
 		}
-		if i, err := os.Stat(opt.OutArg); err == nil {
-			if i.IsDir() {
-				return filepath.Join(opt.OutArg, filename)
-			}
-		}
-		return opt.OutArg
-	}()
+	}
+	return f.opt.OutArg
+}
 
-	b, err := os.ReadFile(opt.Template.Value)
+type fileRenderer struct {
+	ctx  context.Context
+	opt  option.Option
+	data map[string]any
+}
+
+func (f *fileRenderer) Render() error {
+	outPath := f.fixPath()
+	file := f.opt.Template.Value
+	r, err := os.ReadFile(file)
 	if err != nil {
-		fmt.Errorf(
-			"cannot read path: %s: %w\nhint: use --literal to treat it as a string",
-			opt.Template.Value, err,
+		msg := fmt.Sprintf(
+			"cannot read path: %s: %v\nhint: use --literal to treat it as a string\n",
+			file, err,
 		)
+		f.ctx.Err.Write([]byte(msg))
 	}
-	tmplStr := string(b)
-
-	w, err := outWriter(outPath, opt.OutArg)
-	if err != nil {
-		return err
-	}
-	defer w.Close()
-
-	return render("", fixForOut(tmplStr, opt.OutArg), data, w)
+	tmplStr := string(r)
+	return render(file, tmplStr, outPath, f.data, f.ctx.Out)
 }

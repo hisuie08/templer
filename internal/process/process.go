@@ -5,37 +5,36 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"templer/internal/context"
 	"templer/internal/option"
 	"templer/internal/parser"
 	"templer/internal/renderer"
 )
 
-type process struct {
-	opt option.Option
+type Process struct {
+	Ctx context.Context
+	Opt option.Option
 }
 
-func New(o option.Option) process {
-	return process{opt: o}
-}
-func (p *process) Run() error {
-	if !strings.HasPrefix(p.opt.Template.Suffix, ".") {
-		p.opt.Template.Suffix = fmt.Sprintf(".%s", p.opt.Template.Suffix)
+func (p *Process) Run() error {
+	if !strings.HasPrefix(p.Opt.Template.Suffix, ".") {
+		p.Opt.Template.Suffix = fmt.Sprintf(".%s", p.Opt.Template.Suffix)
 	}
-	data := parser.New(p.opt).Parse()
-	if p.opt.Template.AsLiteral {
-		return renderer.RenderStr(p.opt, data)
+	data := parser.New(p.Opt).Parse()
+	if p.Opt.Template.AsLiteral {
+		return renderer.Literal(p.Ctx, p.Opt, data).Render()
 	}
-	fi, err := os.Stat(p.opt.Template.Value)
+	fi, err := os.Stat(p.Opt.Template.Value)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return renderer.RenderStr(p.opt, data)
+			return renderer.Literal(p.Ctx, p.Opt, data).Render()
 		}
 		return err
 	}
 	if fi.IsDir() {
-		return renderer.RenderDir(p.opt, data)
+		return renderer.Dir(p.Ctx, p.Opt, data).Render()
 	} else {
-		return renderer.RenderFile(p.opt, data)
+		return renderer.File(p.Ctx, p.Opt, data).Render()
 	}
 }
 
