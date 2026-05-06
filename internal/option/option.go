@@ -17,4 +17,10 @@ type Template struct {
 
 const OutSibling = "__SIBLING__"
 
-const MetaString="*?[]"
+const MetaStr = "*?[]"
+
+var Prefix = struct {
+	Str  string
+	File string
+	Glob string
+}{Str: "str:", File: "file:", Glob: "glob:"}

@@ -2,13 +2,12 @@ package parser
 
 import (
 	"bufio"
-	"encoding/json"
+	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"templer/internal/context"
 	"templer/internal/option"
-
-	"gopkg.in/yaml.v3"
 )
 
 type parser struct {
@@ -26,23 +25,6 @@ func (p *parser) setKV(s string) {
 	}
 }
 
-func (p *parser) parseArg(arg string, format string) {
-	var raw string
-	if b, err := os.ReadFile(arg); err == nil {
-		raw = "\n" + string(b)
-	} else {
-		// Continue as stdin string
-		raw = "\n" + arg
-	}
-	if raw != "" {
-		if format == "json" {
-			json.Unmarshal([]byte(raw), &p.data)
-		} else {
-			yaml.Unmarshal([]byte(raw), &p.data)
-		}
-	}
-}
-
 func (p *parser) loadEnv() {
 	envs := os.Environ()
 	for _, s := range envs {
@@ -50,20 +32,55 @@ func (p *parser) loadEnv() {
 	}
 }
 
-func (p *parser) loadData(args []string, format string) error {
+func (p *parser) loadData(args []string) error {
 	for _, arg := range args {
-		// メタ文字を含む場合Globチャレンジ
-		if hasMeta(arg) {
-			matches := matchFile(p.ctx.Root, arg)
-			if len(matches) == 0 {
-				return &GlobNoMatchError{arg}
+		// 文字列プレフィックスを確認
+		switch {
+		case strings.HasPrefix(arg, option.Prefix.Str):
+			v := strings.TrimPrefix(arg, option.Prefix.Str)
+			if err := p.asStr(v); err != nil {
+				return err
 			}
-			for _, v := range matches {
-				p.parseArg(v, format)
+		case strings.HasPrefix(arg, option.Prefix.Glob):
+			v := strings.TrimPrefix(arg, option.Prefix.Glob)
+			if err := p.asGlob(v); err != nil {
+				return err
 			}
-		} else {
-			p.parseArg(arg, format)
+		case strings.HasPrefix(arg, option.Prefix.File):
+			v := strings.TrimPrefix(arg, option.Prefix.File)
+			if err := p.asFile(v); err != nil {
+				return err
+			}
+		default:
+			// ファイルとして試す
+			if err := p.asFile(arg); err == nil {
+				continue
+				// 「ファイルが無い」のみ許容（次の評価へ進行）
+			} else {
+				if !errors.Is(err, os.ErrNotExist) {
+					return err
+				}
+			}
+			if hasMeta(arg) {
+				matches, err := matchFile(p.ctx.Root, arg)
+				if err != nil {
+					return err
+				}
+				if len(matches) == 0 {
+					return fmt.Errorf("no matches for pattern: %s", arg)
+				}
+				if err := p.asGlob(arg); err != nil {
+					return err
+				}
+				continue
+			}
+
+			// 3. 最後に文字列
+			if err := p.asStr(arg); err != nil {
+				return err
+			}
 		}
+
 	}
 	return nil
 }
@@ -87,7 +104,7 @@ func (p *parser) Parse() (map[string]any, error) {
 	if p.opt.LoadEnv {
 		p.loadEnv()
 	}
-	if err := p.loadData(p.opt.DataArgs, p.opt.DataFormat); err != nil {
+	if err := p.loadData(p.opt.DataArgs); err != nil {
 		return p.data, err
 	}
 	p.loadSets(p.opt.SetValues)

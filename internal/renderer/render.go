@@ -9,8 +9,6 @@ import (
 	"templer/internal/option"
 	"templer/internal/output"
 	"text/template"
-
-	"github.com/Masterminds/sprig/v3"
 )
 
 func render(name, input string, outPath string,
@@ -30,7 +28,7 @@ func render(name, input string, outPath string,
 }
 
 func newTmpl(name string) *template.Template {
-	return template.New(name).Funcs(sprig.FuncMap()).Funcs(funcs.Funcs())
+	return template.New(name).Funcs(funcs.Funcs())
 }
 func fixForOut(str string) string {
 	result := str

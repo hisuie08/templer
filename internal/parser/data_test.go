@@ -10,19 +10,23 @@ var fsMap = map[string][]string{
 	"match1":    []string{"file1.txt", "file2.yml"},
 	"match0":    []string{"file1.txt", "file2.txt"},
 	"match.yml": []string{"file1.txt", "file2.txt"},
+	"matchs":    []string{"file.yml", "test.yml"},
 }
 
-func mockFs(root, dirname string) error {
-	dir := filepath.Join(root, dirname)
-	if e := os.MkdirAll(dir, 0755); e != nil {
-		return e
-	}
-	for _, v := range fsMap[dirname] {
-		file := filepath.Join(dir, v)
-		if e := os.WriteFile(file, []byte("0"), 0644); e != nil {
+func mockFs(root string) error {
+	for dirname, v := range fsMap {
+		dir := filepath.Join(root, dirname)
+		if e := os.MkdirAll(dir, 0755); e != nil {
 			return e
 		}
+		for _, f := range v {
+			file := filepath.Join(dir, f)
+			if e := os.WriteFile(file, []byte("0"), 0644); e != nil {
+				return e
+			}
+		}
 	}
+
 	return nil
 }
 func Test_matchFile(t *testing.T) {
@@ -35,14 +39,19 @@ func Test_matchFile(t *testing.T) {
 		{name: "match 1", dir: "match1", want: 1},
 		{name: "match 0", dir: "match0", want: 0},
 		{name: "ignore dir", dir: "match.yml", want: 0},
+		{name: "nest", dir: ".", want: 3},
+	}
+	if err := mockFs(td); err != nil {
+		t.Fatal(err)
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := mockFs(td, tt.dir); err != nil {
+
+			dir := filepath.Join(td, tt.dir)
+			got, err := matchFile(dir, "**/*.yml")
+			if err != nil {
 				t.Fatal(err)
 			}
-			dir := filepath.Join(td, tt.dir)
-			got := matchFile(dir, "*.yml")
 			if len(got) != tt.want {
 				t.Fatalf("want %d got %v", tt.want, got)
 			}

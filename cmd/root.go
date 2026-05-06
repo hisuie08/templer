@@ -18,7 +18,7 @@ var rootCmd = &cobra.Command{
 	Args: cobra.MaximumNArgs(1),
 	Use:  "templer <template>",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		wd,err:=os.Getwd()
+		wd, err := os.Getwd()
 		if err != nil {
 			return err
 		}
@@ -42,9 +42,9 @@ var rootCmd = &cobra.Command{
 		}()
 		var context = context.Context{
 			Root: wd,
-			Out: out,
-			Log: cmd.ErrOrStderr(),
-			Err: cmd.ErrOrStderr(),
+			Out:  out,
+			Log:  cmd.ErrOrStderr(),
+			Err:  cmd.ErrOrStderr(),
 		}
 		p := &process.Process{Ctx: context, Opt: opt}
 		return p.Run()
@@ -70,9 +70,16 @@ func Execute() {
 	}
 }
 
+const data_help = `YAML-like data PREFIX:<value>
+file:<value> -> force value as file to read
+glob:<value> -> force value as glob pattern
+str:<value> -> force value as string literal
+`
+
+// TODO: templateもsuffixじゃなくてglobにしてもいいかも(検討中)
 func init() {
 	rootCmd.Flags().BoolVar(&opt.Template.AsLiteral, "literal", false, "ensure template as string")
-	rootCmd.Flags().StringArrayVarP(&opt.DataArgs, "data", "d", []string{}, "data file or string")
+	rootCmd.Flags().StringArrayVarP(&opt.DataArgs, "data", "d", []string{}, data_help)
 	rootCmd.Flags().StringVar(&opt.DataFormat, "data-format", "", "json|yaml")
 	rootCmd.Flags().StringVarP(&opt.Template.Suffix, "suffix", "s", ".tmpl", "template file suffix")
 	rootCmd.Flags().StringVarP(&opt.OutArg, "out", "o", "", "output path\nuse <template> path with the suffix trimmed when no arguments")

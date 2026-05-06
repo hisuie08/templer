@@ -1,41 +1,61 @@
 package parser
 
 import (
-	"fmt"
-	"io/fs"
+	"encoding/json"
+	"os"
 	"path/filepath"
 	"strings"
 	"templer/internal/option"
+
+	"github.com/bmatcuk/doublestar/v4"
+	"gopkg.in/yaml.v3"
 )
 
 // --data [arg] 処理用関数群
-type GlobNoMatchError struct {
-	Pattern string
+
+// glob関数を再帰的に使ってマッチしたパスを返す
+func matchFile(root string, pattern string) ([]string, error) {
+	return doublestar.Glob(os.DirFS(root), pattern, doublestar.WithFilesOnly())
 }
 
-func (e *GlobNoMatchError) Error() string {
-	return fmt.Sprintf("no matches for pattern: %s", e.Pattern)
+func hasMeta(s string) bool {
+	return strings.ContainsAny(s, option.MetaStr)
 }
 
-func glob(path, pattern string) []string {
-	g, err := filepath.Glob(filepath.Join(path, pattern))
+func (p *parser) asGlob(v string) error {
+	matches, err := matchFile(p.ctx.Root, v)
 	if err != nil {
-		return []string{}
+		return err
 	}
-	return g
-}
-func matchFile(root string, pattern string) []string {
-	result := []string{}
-	filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-		if d.IsDir() {
-			result = append(result, glob(path, pattern)...)
+	for _, v := range matches {
+		if err := p.asFile(v); err != nil {
+			return err
 		}
-		return nil
-	})
-	return result
+	}
+	return nil
+}
+func (p *parser) asFile(s string) error {
+	v := filepath.Join(p.ctx.Root, s)
+	b, err := os.ReadFile(v)
+	if err != nil {
+		return err
+	}
+	return p.parseArg(string(b))
 }
 
-func hasMeta(str string) bool {
-	return strings.ContainsAny(str, option.MetaString)
+func (p *parser) asStr(s string) error {
+	return p.parseArg(s)
 }
 
+func (p *parser) parseArg(raw string) error {
+	if p.opt.DataFormat == "json" {
+		if err := json.Unmarshal([]byte(raw), &p.data); err != nil {
+			return err
+		}
+	} else {
+		if err := yaml.Unmarshal([]byte(raw), &p.data); err != nil {
+			return err
+		}
+	}
+	return nil
+}
