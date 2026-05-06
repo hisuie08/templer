@@ -6,27 +6,46 @@ import (
 	"testing"
 )
 
+var fsMap = map[string][]string{
+	"match1":    []string{"file1.txt", "file2.yml"},
+	"match0":    []string{"file1.txt", "file2.txt"},
+	"match.yml": []string{"file1.txt", "file2.txt"},
+}
+
+func mockFs(root, dirname string) error {
+	dir := filepath.Join(root, dirname)
+	if e := os.MkdirAll(dir, 0755); e != nil {
+		return e
+	}
+	for _, v := range fsMap[dirname] {
+		file := filepath.Join(dir, v)
+		if e := os.WriteFile(file, []byte("0"), 0644); e != nil {
+			return e
+		}
+	}
+	return nil
+}
 func Test_matchFile(t *testing.T) {
-	cwd, _ := os.Getwd()
+	td := t.TempDir()
 	tests := []struct {
-		name    string
-		root    string
-		pattern string
-		want    int
+		name string
+		dir  string
+		want int
 	}{
-		// TODO: テストのデータをなんとかする
-		{name: "sample", root: filepath.Join(cwd, "../../sample"),
-			pattern: "*.yml", want: 1},
-		{name: "testdata", root: filepath.Join(cwd, "../../testdata"),
-			pattern: "*.yml", want: 2},
+		{name: "match 1", dir: "match1", want: 1},
+		{name: "match 0", dir: "match0", want: 0},
+		{name: "ignore dir", dir: "match.yml", want: 0},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := matchFile(tt.root, tt.pattern)
+			if err := mockFs(td, tt.dir); err != nil {
+				t.Fatal(err)
+			}
+			dir := filepath.Join(td, tt.dir)
+			got := matchFile(dir, "*.yml")
 			if len(got) != tt.want {
 				t.Fatalf("want %d got %v", tt.want, got)
 			}
-			t.Logf("%v", got)
 		})
 	}
 }
