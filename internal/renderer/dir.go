@@ -57,6 +57,7 @@ func (d *dirRenderer) execEntry(
 	if !strings.HasSuffix(path, d.opt.Template.Suffix) {
 		return nil
 	}
+	// 基準パスからの相対パスを出力先で保持するため
 	rel, err := filepath.Rel(d.opt.Template.Value, path)
 	if err != nil {
 		return err
@@ -66,7 +67,7 @@ func (d *dirRenderer) execEntry(
 		return err
 	}
 	tmplStr := string(b)
-	outPath := filepath.Join(outDir, strings.TrimSuffix(
-		rel, d.opt.Template.Suffix))
+	relPath := strings.TrimSuffix(rel, d.opt.Template.Suffix)
+	outPath := filepath.Join(outDir, relPath)
 	return render(path, tmplStr, outPath, d.data, d.ctx.Out)
 }

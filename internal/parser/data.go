@@ -56,8 +56,11 @@ func (p *parser) asGlob(v string) error {
 	}
 	return nil
 }
-func (p *parser) asFile(s string) error {
-	v := filepath.Join(p.ctx.Root, s)
+func (p *parser) asFile(path string) error {
+	v,err := filepath.Abs(path)
+	if err != nil {
+		return err
+	}
 	b, err := os.ReadFile(v)
 	if err != nil {
 		return err

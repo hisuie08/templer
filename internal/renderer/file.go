@@ -20,11 +20,12 @@ func (f *fileRenderer) fixOut() (string, error) {
 		if dir {
 			return filepath.Abs(filepath.Join(f.opt.OutArg, filename))
 		} else {
-			return filepath.Abs(filepath.Join(f.opt.OutArg))
+			return filepath.Abs(f.opt.OutArg)
 		}
 	}
 	if f.opt.OutDefault { // --out / -O
-		return filepath.Join(filepath.Dir(f.opt.Template.Value), filename), nil
+		return filepath.Abs(
+			filepath.Join(filepath.Dir(f.opt.Template.Value), filename))
 	}
 	f.ctx.Out.AsStd()
 	return "", nil
