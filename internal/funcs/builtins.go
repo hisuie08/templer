@@ -2,15 +2,15 @@ package funcs
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
 func readFile(path string) (string, error) {
-	wd, err := os.Getwd()
+	p, err := filepath.Abs(path)
 	if err != nil {
 		return "", err
 	}
-	p := filepath.Join(wd, path)
 	b, err := os.ReadFile(p)
 	if err != nil {
 		return "", err
@@ -20,4 +20,9 @@ func readFile(path string) (string, error) {
 
 func cwd() (string, error) {
 	return os.Getwd()
+}
+
+func shell(cmd string, args ...string) (string, error) {
+	out, err := exec.Command(cmd, args...).CombinedOutput()
+	return string(out), err
 }

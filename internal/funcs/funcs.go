@@ -7,8 +7,9 @@ import (
 )
 
 var builtInFuncs map[string]any = map[string]any{
-	"readFile": readFile,
-	"cwd":      cwd,
+	"ReadFile": readFile,
+	"Cwd":      cwd,
+	"Shell": shell,
 }
 
 type TemplerFunc struct {
