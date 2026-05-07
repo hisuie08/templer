@@ -80,10 +80,10 @@ str:<value> -> force value as string literal
 func init() {
 	rootCmd.Flags().BoolVar(&opt.Template.AsLiteral, "literal", false, "ensure template as string")
 	rootCmd.Flags().StringArrayVarP(&opt.DataArgs, "data", "d", []string{}, data_help)
-	rootCmd.Flags().StringVar(&opt.DataFormat, "data-format", "", "json|yaml")
-	rootCmd.Flags().StringVarP(&opt.Template.Suffix, "suffix", "s", ".tmpl", "template file suffix")
-	rootCmd.Flags().StringVarP(&opt.OutArg, "out", "o", "", "output path\nuse <template> path with the suffix trimmed when no arguments")
-	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "Add K=V format entries file|string")
-	rootCmd.Flags().BoolVar(&opt.LoadEnv, "env", true, "load env")
+	rootCmd.Flags().StringVar(&opt.DataFormat, "data-format", "", "force data format json|yaml\n In most cases, you don't need to specify it.")
+	rootCmd.Flags().StringVar(&opt.Template.Suffix, "suffix", ".tmpl", "template file suffix")
+	rootCmd.Flags().StringVarP(&opt.OutArg, "outdir", "o", "", "path to output file(s)")
+	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "K=V data entries\nALWAYS overwrite duplicate entries in --data. file|string")
+	rootCmd.Flags().BoolVar(&opt.IgnoreEnv, "no-env", false, "disable automatic loading of environment variables")
 	rootCmd.Flag("out").NoOptDefVal = option.OutSibling
 }

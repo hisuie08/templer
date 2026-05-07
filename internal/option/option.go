@@ -5,7 +5,7 @@ type Option struct {
 	DataFormat string
 	OutArg     string
 	SetValues  []string
-	LoadEnv    bool
+	IgnoreEnv  bool
 	Template   Template
 }
 

@@ -101,8 +101,10 @@ func (p *parser) loadSets(sets []string) {
 }
 
 func (p *parser) Parse() (map[string]any, error) {
-	if p.opt.LoadEnv {
-		p.loadEnv()
+	if !p.opt.IgnoreEnv {
+		if err := p.loadEnv(); err != nil {
+			return p.data, err
+		}
 	}
 	if err := p.loadData(p.opt.DataArgs); err != nil {
 		return p.data, err
