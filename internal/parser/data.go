@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"templer/internal/option"
 
@@ -22,12 +23,33 @@ func hasMeta(s string) bool {
 	return strings.ContainsAny(s, option.MetaStr)
 }
 
+// ディレクトリネスト昇順、名前昇順でソート
+// globのマッチを安定させる
+func sortPath(paths []string) []string {
+	depth := func(path string) int {
+		clean := filepath.Clean(path)
+		if clean == "." {
+			return 0
+		}
+		return strings.Count(clean, string(filepath.Separator))
+	}
+	sort.Slice(paths, func(i, j int) bool {
+		di := depth(paths[i])
+		dj := depth(paths[j])
+		if di != dj {
+			return di < dj
+		}
+		return paths[i] < paths[j]
+	})
+	return paths
+}
+
 func (p *parser) asGlob(v string) error {
 	matches, err := matchFile(p.ctx.Root, v)
 	if err != nil {
 		return err
 	}
-	for _, v := range matches {
+	for _, v := range sortPath(matches) {
 		if err := p.asFile(v); err != nil {
 			return err
 		}

@@ -6,6 +6,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.3.0
 	github.com/bmatcuk/doublestar/v4 v4.10.0
 	github.com/expr-lang/expr v1.17.8
+	github.com/go-test/deep v1.1.1
 	github.com/spf13/cobra v1.10.2
 	gopkg.in/yaml.v3 v3.0.1
 )

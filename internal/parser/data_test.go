@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/go-test/deep"
 )
 
 var fsMap = map[string][]string{
@@ -76,6 +78,29 @@ func Test_hasMeta(t *testing.T) {
 			// TODO: update the condition below to compare got with tt.want.
 			if got != tt.want {
 				t.Errorf("hasMeta() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_sortPath(t *testing.T) {
+	tests := []struct {
+		name  string
+		paths []string
+		want  []string
+	}{{
+		name: "test",
+		paths: []string{
+			"b/c/d.txt", "a.txt", "b/a.txt", "b/c.txt", "a/b/c.txt", "a/b.txt"},
+		want: []string{
+			"a.txt", "a/b.txt", "b/a.txt", "b/c.txt", "a/b/c.txt", "b/c/d.txt"},
+	}}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := sortPath(tt.paths)
+			eq := deep.Equal(got, tt.want)
+			if len(eq) != 0 {
+				t.Errorf("%v", eq)
 			}
 		})
 	}
