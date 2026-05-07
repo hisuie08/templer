@@ -34,15 +34,9 @@ var rootCmd = &cobra.Command{
 			}
 			opt.Template.Value = string(b)
 		}
-		out := func() output.Output {
-			if opt.OutArg == "" {
-				return output.StdOut(cmd.OutOrStdout())
-			}
-			return output.FileOut()
-		}()
 		var context = context.Context{
 			Root: wd,
-			Out:  out,
+			Out:  output.OutController(cmd.OutOrStdout()),
 			Log:  cmd.ErrOrStderr(),
 			Err:  cmd.ErrOrStderr(),
 		}
@@ -81,8 +75,8 @@ func init() {
 	rootCmd.Flags().StringArrayVarP(&opt.DataArgs, "data", "d", []string{}, data_help)
 	rootCmd.Flags().StringVar(&opt.DataFormat, "data-format", "", "force data format json|yaml\n In most cases, you don't need to specify it.")
 	rootCmd.Flags().StringVar(&opt.Template.Suffix, "suffix", ".tmpl", "template file suffix")
-	rootCmd.Flags().StringVarP(&opt.OutArg, "outdir", "o", "", "path to output file(s)")
+	rootCmd.Flags().StringVarP(&opt.OutArg, "outdir", "o", "", "write output files under the specified directory")
+	rootCmd.Flags().BoolVarP(&opt.OutDefault, "out", "O", false, "write output beside the template file, removing the template suffix")
 	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "K=V data entries\nALWAYS overwrite duplicate entries in --data. file|string")
 	rootCmd.Flags().BoolVar(&opt.IgnoreEnv, "no-env", false, "disable automatic loading of environment variables")
-	rootCmd.Flag("out").NoOptDefVal = option.OutSibling
 }

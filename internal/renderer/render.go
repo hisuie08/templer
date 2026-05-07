@@ -3,6 +3,7 @@ package renderer
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"strings"
 	"templer/internal/context"
 	"templer/internal/funcs"
@@ -36,6 +37,13 @@ func fixForOut(str string) string {
 		result = fmt.Sprintln(str)
 	}
 	return result
+}
+func isValidDir(path string) (bool, error) {
+	if i, err := os.Stat(path); err == nil {
+		return i.IsDir(), nil
+	} else {
+		return false, err
+	}
 }
 
 type Renderer interface {

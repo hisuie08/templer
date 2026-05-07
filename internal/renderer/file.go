@@ -9,18 +9,25 @@ import (
 	"templer/internal/option"
 )
 
-func (f *fileRenderer) fixPath() string {
+func (f *fileRenderer) fixOut() (string, error) {
 	filename := strings.TrimSuffix(
 		filepath.Base(f.opt.Template.Value), f.opt.Template.Suffix)
-	if f.opt.OutArg == option.OutSibling {
-		return filepath.Join(filepath.Dir(f.opt.Template.Value), filename)
-	}
-	if i, err := os.Stat(f.opt.OutArg); err == nil {
-		if i.IsDir() {
-			return filepath.Join(f.opt.OutArg, filename)
+	if f.opt.OutArg != "" { // --outdir / -o
+		dir, err := isValidDir(f.opt.OutArg)
+		if err != nil {
+			return "", err
+		}
+		if dir {
+			return filepath.Abs(filepath.Join(f.opt.OutArg, filename))
+		} else {
+			return filepath.Abs(filepath.Join(f.opt.OutArg))
 		}
 	}
-	return f.opt.OutArg
+	if f.opt.OutDefault { // --out / -O
+		return filepath.Join(filepath.Dir(f.opt.Template.Value), filename), nil
+	}
+	f.ctx.Out.AsStd()
+	return "", nil
 }
 
 type fileRenderer struct {
@@ -30,7 +37,10 @@ type fileRenderer struct {
 }
 
 func (f *fileRenderer) Render() error {
-	outPath := f.fixPath()
+	outPath, err := f.fixOut()
+	if err != nil {
+		return err
+	}
 	file := f.opt.Template.Value
 	r, err := os.ReadFile(file)
 	if err != nil {

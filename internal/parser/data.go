@@ -15,8 +15,8 @@ import (
 // --data [arg] 処理用関数群
 
 // glob関数を再帰的に使ってマッチしたパスを返す
-func matchFile(root string, pattern string) ([]string, error) {
-	return doublestar.Glob(os.DirFS(root), pattern, doublestar.WithFilesOnly())
+func matchFile(pattern string) ([]string, error) {
+	return doublestar.FilepathGlob(pattern, doublestar.WithFilesOnly())
 }
 
 func hasMeta(s string) bool {
@@ -45,7 +45,7 @@ func sortPath(paths []string) []string {
 }
 
 func (p *parser) asGlob(v string) error {
-	matches, err := matchFile(p.ctx.Root, v)
+	matches, err := matchFile( v)
 	if err != nil {
 		return err
 	}

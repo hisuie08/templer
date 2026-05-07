@@ -22,7 +22,7 @@ func Test_fileOutput_WriteFile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// TODO: construct the receiver type.
-			var o fileOutput
+			var o outCtler
 			gotErr := o.WriteFile(tt.path, []byte(tt.data))
 			if gotErr != nil {
 				if !tt.wantErr {

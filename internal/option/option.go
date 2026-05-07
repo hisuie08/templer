@@ -4,6 +4,7 @@ type Option struct {
 	DataArgs   []string
 	DataFormat string
 	OutArg     string
+	OutDefault bool
 	SetValues  []string
 	IgnoreEnv  bool
 	Template   Template

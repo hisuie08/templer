@@ -59,22 +59,21 @@ func (p *parser) loadData(args []string) error {
 				}
 			}
 			if hasMeta(arg) {
-				matches, err := matchFile(p.ctx.Root, arg)
+				matches, err := matchFile(arg)
 				if err != nil {
 					return err
 				}
 				if len(matches) == 0 {
-					return fmt.Errorf("no matches for pattern: %s", arg)
+					return fmt.Errorf("no matches for pattern: %s\n[hint] consider use 'str:' prefix", arg)
 				}
 				if err := p.asGlob(arg); err != nil {
 					return err
 				}
-				continue
-			}
-
-			// 3. 最後に文字列
-			if err := p.asStr(arg); err != nil {
-				return err
+			} else {
+				// 3. 最後に文字列
+				if err := p.asStr(arg); err != nil {
+					return err
+				}
 			}
 		}
 

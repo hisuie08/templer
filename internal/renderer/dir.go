@@ -1,6 +1,7 @@
 package renderer
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,11 +10,23 @@ import (
 	"templer/internal/option"
 )
 
-func (d *dirRenderer) fixPath() string {
-	if d.opt.OutArg == option.OutSibling {
-		return d.opt.Template.Value
+func (d *dirRenderer) fixPath() (string, error) {
+	if d.opt.OutArg != "" {
+		dir, err := isValidDir(d.opt.OutArg)
+		if err != nil {
+			return "", err
+		}
+		if !dir {
+			return "", fmt.Errorf(
+				"invalid path: %s is not a directory", d.opt.OutArg)
+		}
+		return filepath.Abs(d.opt.OutArg)
 	}
-	return d.opt.OutArg
+	if d.opt.OutDefault {
+		return d.opt.Template.Value, nil
+	}
+	d.ctx.Out.AsStd()
+	return "", nil
 }
 
 type dirRenderer struct {
@@ -23,7 +36,10 @@ type dirRenderer struct {
 }
 
 func (d *dirRenderer) Render() error {
-	outDir := d.fixPath()
+	outDir, err := d.fixPath()
+	if err != nil {
+		return err
+	}
 	return filepath.WalkDir(d.opt.Template.Value,
 		func(path string, e os.DirEntry, err error) error {
 			return d.execEntry(path, e, err, outDir)
