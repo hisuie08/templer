@@ -70,11 +70,10 @@ func Execute() {
 	}
 }
 
-const data_help = `YAML-like data PREFIX:<value>
+const data_help = `YAML (or JSON) format data <file|glob|str>:<value>
 file:<value> -> force value as file to read
 glob:<value> -> force value as glob pattern
-str:<value> -> force value as string literal
-`
+str:<value> -> force value as string literal`
 
 // TODO: templateもsuffixじゃなくてglobにしてもいいかも(検討中)
 func init() {
