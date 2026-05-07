@@ -16,20 +16,17 @@ type parser struct {
 	data map[string]any
 }
 
-// setKvはKey=Value型のデータを処理する
-// loadEnvとloadSetで使う
-func (p *parser) setKV(s string) {
-	kv := strings.SplitN(s, "=", 2)
-	if len(kv) == 2 {
-		mapSetter(p.data, kv[0], kv[1])
-	}
-}
-
-func (p *parser) loadEnv() {
+func (p *parser) loadEnv() error {
 	envs := os.Environ()
 	for _, s := range envs {
-		p.setKV(s)
+		if err := p.setKV(s); err != nil {
+			if errors.Is(err, ErrInvalidFormat) {
+				return fmt.Errorf("%w in env", err)
+			}
+			return err
+		}
 	}
+	return nil
 }
 
 func (p *parser) loadData(args []string) error {
@@ -85,19 +82,26 @@ func (p *parser) loadData(args []string) error {
 	return nil
 }
 
-func (p *parser) loadSets(sets []string) {
+func (p *parser) loadSets(sets []string) error {
 	for _, s := range sets {
 		if f, err := os.Open(s); err == nil {
 			defer f.Close()
 			scanner := bufio.NewScanner(f)
 			for scanner.Scan() {
-				p.setKV(scanner.Text())
+				if err := p.setKV(scanner.Text()); err != nil {
+					if errors.Is(err, ErrInvalidFormat) {
+						return fmt.Errorf("%w in %s", err, s)
+					}
+					return err
+				}
 			}
-
 		} else {
-			p.setKV(s)
+			if err := p.setKV(s); err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }
 
 func (p *parser) Parse() (map[string]any, error) {
@@ -109,7 +113,9 @@ func (p *parser) Parse() (map[string]any, error) {
 	if err := p.loadData(p.opt.DataArgs); err != nil {
 		return p.data, err
 	}
-	p.loadSets(p.opt.SetValues)
+	if err := p.loadSets(p.opt.SetValues); err != nil {
+		return p.data, err
+	}
 	return p.data, nil
 }
 

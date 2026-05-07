@@ -1,6 +1,34 @@
 package parser
 
-import "strings"
+import (
+	"errors"
+	"fmt"
+	"strings"
+)
+
+// setKvはKey=Value型のデータを処理する
+// loadEnvとloadSetで使う
+var ErrInvalidFormat = errors.New("invalid format")
+
+type errInvalidSet struct {
+	Set string
+}
+
+func (e *errInvalidSet) Error() string {
+	return fmt.Sprintf("invalid format: %s", e.Set)
+}
+func (e *errInvalidSet) Unwrap() error {
+	return ErrInvalidFormat
+}
+
+func (p *parser) setKV(s string) error {
+	kv := strings.SplitN(s, "=", 2)
+	if len(kv) == 2 {
+		mapSetter(p.data, kv[0], kv[1])
+		return nil
+	}
+	return &errInvalidSet{Set: s}
+}
 
 // テスト用の切り出し
 func mapSetter(data map[string]any, key string, value any) map[string]any {
