@@ -11,16 +11,16 @@ import (
 )
 
 func (d *dirRenderer) fixPath() (string, error) {
-	if d.opt.OutArg != "" {
-		dir, err := isValidDir(d.opt.OutArg)
+	if d.opt.OutDir != "" {
+		dir, err := isValidDir(d.opt.OutDir)
 		if err != nil {
 			return "", err
 		}
 		if !dir {
 			return "", fmt.Errorf(
-				"invalid path: %s is not a directory", d.opt.OutArg)
+				"invalid path: %s is not a directory", d.opt.OutDir)
 		}
-		return filepath.Abs(d.opt.OutArg)
+		return filepath.Abs(d.opt.OutDir)
 	}
 	if d.opt.OutDefault {
 		return d.opt.Template.Value, nil

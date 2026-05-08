@@ -3,7 +3,7 @@ package option
 type Option struct {
 	DataArgs            []string
 	DataStrictJson      bool
-	OutArg              string
+	OutDir              string
 	OutDefault          bool
 	AllowShellExecution bool
 	SetValues           []string

@@ -12,15 +12,15 @@ import (
 func (f *fileRenderer) fixOut() (string, error) {
 	filename := strings.TrimSuffix(
 		filepath.Base(f.opt.Template.Value), f.opt.Template.Suffix)
-	if f.opt.OutArg != "" { // --outdir / -o
-		dir, err := isValidDir(f.opt.OutArg)
+	if f.opt.OutDir != "" { // --outdir / -o
+		dir, err := isValidDir(f.opt.OutDir)
 		if err != nil {
 			return "", err
 		}
 		if dir {
-			return filepath.Abs(filepath.Join(f.opt.OutArg, filename))
+			return filepath.Abs(filepath.Join(f.opt.OutDir, filename))
 		} else {
-			return filepath.Abs(f.opt.OutArg)
+			return filepath.Abs(f.opt.OutDir)
 		}
 	}
 	if f.opt.OutDefault { // --out / -O
@@ -52,5 +52,5 @@ func (f *fileRenderer) Render() error {
 		f.ctx.Err.Write([]byte(msg))
 	}
 	tmplStr := string(r)
-	return render(file, tmplStr, outPath, f.data, f.ctx.Out,f.opt)
+	return render(file, tmplStr, outPath, f.data, f.ctx.Out, f.opt)
 }
