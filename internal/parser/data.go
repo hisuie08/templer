@@ -45,7 +45,7 @@ func sortPath(paths []string) []string {
 }
 
 func (p *parser) asGlob(v string) error {
-	matches, err := matchFile( v)
+	matches, err := matchFile(v)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func (p *parser) asGlob(v string) error {
 	return nil
 }
 func (p *parser) asFile(path string) error {
-	v,err := filepath.Abs(path)
+	v, err := filepath.Abs(path)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (p *parser) asStr(s string) error {
 }
 
 func (p *parser) parseArg(raw string) error {
-	if p.opt.DataFormat == "json" {
+	if p.opt.DataStrictJson {
 		if err := json.Unmarshal([]byte(raw), &p.data); err != nil {
 			return err
 		}

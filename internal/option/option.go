@@ -1,14 +1,14 @@
 package option
 
 type Option struct {
-	DataArgs   []string
-	DataFormat string
-	OutArg     string
-	OutDefault bool
+	DataArgs            []string
+	DataStrictJson      bool
+	OutArg              string
+	OutDefault          bool
 	AllowShellExecution bool
-	SetValues  []string
-	IgnoreEnv  bool
-	Template   Template
+	SetValues           []string
+	IgnoreEnv           bool
+	Template            Template
 }
 
 type Template struct {

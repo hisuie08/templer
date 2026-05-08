@@ -31,9 +31,9 @@ var rootCmd = &cobra.Command{
 			opt.Template.Value = string(b)
 		}
 		var context = context.Context{
-			Out:  output.OutController(cmd.OutOrStdout()),
-			Log:  cmd.ErrOrStderr(),
-			Err:  cmd.ErrOrStderr(),
+			Out: output.OutController(cmd.OutOrStdout()),
+			Log: cmd.ErrOrStderr(),
+			Err: cmd.ErrOrStderr(),
 		}
 		p := &process.Process{Ctx: context, Opt: opt}
 		return p.Run()
@@ -68,11 +68,11 @@ str:<value> -> force value as string literal`
 func init() {
 	rootCmd.Flags().BoolVar(&opt.Template.AsLiteral, "literal", false, "ensure template as string")
 	rootCmd.Flags().StringArrayVarP(&opt.DataArgs, "data", "d", []string{}, data_help)
-	rootCmd.Flags().StringVar(&opt.DataFormat, "data-format", "", "force data format json|yaml\n In most cases, you don't need to specify it.")
+	rootCmd.Flags().BoolVar(&opt.DataStrictJson, "strict-json", false, "data in strict JSON format")
 	rootCmd.Flags().StringVar(&opt.Template.Suffix, "suffix", ".tmpl", "template file suffix")
 	rootCmd.Flags().StringVarP(&opt.OutArg, "outdir", "o", "", "write output files under the specified directory")
 	rootCmd.Flags().BoolVarP(&opt.OutDefault, "out", "O", false, "write output beside the template file, removing the template suffix")
 	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "K=V data entries\nALWAYS overwrite duplicate entries in --data. file|string")
 	rootCmd.Flags().BoolVar(&opt.IgnoreEnv, "no-env", false, "disable automatic loading of environment variables")
-	rootCmd.Flags().BoolVar(&opt.AllowShellExecution,"allow-shell-execution",false,"enable function shell command execution")
+	rootCmd.Flags().BoolVar(&opt.AllowShellExecution, "allow-shell-execution", false, "enable function shell command execution")
 }

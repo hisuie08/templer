@@ -15,7 +15,7 @@ type TemplerFunc struct {
 // TODO: カスタム関数動的読み込み未実装
 func New(o option.Option) *TemplerFunc {
 	funcMap := sprig.FuncMap()
-	t := &TemplerFunc{}
+	t := &TemplerFunc{opt: o}
 	maps.Copy(funcMap, map[string]any{
 		"ReadFile": t.readFile,
 		"Cwd":      t.cwd,
