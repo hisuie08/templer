@@ -52,5 +52,5 @@ func (f *fileRenderer) Render() error {
 		f.ctx.Err.Write([]byte(msg))
 	}
 	tmplStr := string(r)
-	return render(file, tmplStr, outPath, f.data, f.ctx.Out)
+	return render(file, tmplStr, outPath, f.data, f.ctx.Out,f.opt)
 }

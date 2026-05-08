@@ -13,11 +13,11 @@ import (
 )
 
 func render(name, input string, outPath string,
-	data map[string]any, out output.Output) error {
+	data map[string]any, out output.Output,opt option.Option) error {
 	if out.IsStd() {
 		input = fixForOut(input)
 	}
-	t, err := newTmpl(name).Parse(input)
+	t, err := newTmpl(name,opt).Parse(input)
 	if err != nil {
 		return err
 	}
@@ -28,8 +28,8 @@ func render(name, input string, outPath string,
 	return out.WriteFile(outPath, b.Bytes())
 }
 
-func newTmpl(name string) *template.Template {
-	return template.New(name).Funcs(funcs.Funcs())
+func newTmpl(name string,o option.Option) *template.Template {
+	return template.New(name).Funcs(funcs.New(o).Funcs())
 }
 func fixForOut(str string) string {
 	result := str

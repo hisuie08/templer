@@ -5,6 +5,7 @@ type Option struct {
 	DataFormat string
 	OutArg     string
 	OutDefault bool
+	AllowShellExecution bool
 	SetValues  []string
 	IgnoreEnv  bool
 	Template   Template

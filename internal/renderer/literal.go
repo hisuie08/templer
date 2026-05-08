@@ -41,5 +41,5 @@ func (l *literalRenderer) Render() error {
 	}
 
 	tmplStr := l.opt.Template.Value
-	return render("out", tmplStr, outPath, l.data, l.ctx.Out)
+	return render("out", tmplStr, outPath, l.data, l.ctx.Out,l.opt)
 }

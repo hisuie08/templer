@@ -74,4 +74,5 @@ func init() {
 	rootCmd.Flags().BoolVarP(&opt.OutDefault, "out", "O", false, "write output beside the template file, removing the template suffix")
 	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "K=V data entries\nALWAYS overwrite duplicate entries in --data. file|string")
 	rootCmd.Flags().BoolVar(&opt.IgnoreEnv, "no-env", false, "disable automatic loading of environment variables")
+	rootCmd.Flags().BoolVar(&opt.AllowShellExecution,"allow-shell-execution",false,"enable function shell command execution")
 }

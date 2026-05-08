@@ -69,5 +69,5 @@ func (d *dirRenderer) execEntry(
 	tmplStr := string(b)
 	relPath := strings.TrimSuffix(rel, d.opt.Template.Suffix)
 	outPath := filepath.Join(outDir, relPath)
-	return render(path, tmplStr, outPath, d.data, d.ctx.Out)
+	return render(path, tmplStr, outPath, d.data, d.ctx.Out, d.opt)
 }

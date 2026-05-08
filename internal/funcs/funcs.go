@@ -2,31 +2,27 @@ package funcs
 
 import (
 	"maps"
+	"templer/internal/option"
 
 	"github.com/Masterminds/sprig/v3"
 )
 
-var builtInFuncs map[string]any = map[string]any{
-	"ReadFile": readFile,
-	"Cwd":      cwd,
-	"Shell": shell,
-}
-
 type TemplerFunc struct {
+	opt     option.Option
 	funcMap map[string]any
 }
 
-func Funcs() map[string]any {
-	funcMap := sprig.FuncMap()
-	maps.Copy(funcMap, builtInFuncs)
-	return funcMap
-}
-
 // TODO: カスタム関数動的読み込み未実装
-func New() *TemplerFunc {
+func New(o option.Option) *TemplerFunc {
 	funcMap := sprig.FuncMap()
-	maps.Copy(funcMap, builtInFuncs)
-	return &TemplerFunc{funcMap: funcMap}
+	t := &TemplerFunc{}
+	maps.Copy(funcMap, map[string]any{
+		"ReadFile": t.readFile,
+		"Cwd":      t.cwd,
+		"Exec":     t.execShell,
+	})
+	t.funcMap = funcMap
+	return t
 }
 
 func (f *TemplerFunc) Load(fm map[string]any) *TemplerFunc {
@@ -34,6 +30,6 @@ func (f *TemplerFunc) Load(fm map[string]any) *TemplerFunc {
 	return f
 }
 
-func (f *TemplerFunc) Build() map[string]any {
+func (f *TemplerFunc) Funcs() map[string]any {
 	return f.funcMap
 }

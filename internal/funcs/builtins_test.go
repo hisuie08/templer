@@ -23,7 +23,7 @@ func Test_readFile(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, gotErr := readFile(tt.path)
+			got, gotErr := (&TemplerFunc{}).readFile(tt.path)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("readFile() failed: %v", gotErr)
@@ -35,6 +35,34 @@ func Test_readFile(t *testing.T) {
 			}
 			if got != tt.want {
 				t.Errorf("readFile() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_shell(t *testing.T) {
+	tests := []struct {
+		name string // description of this test case
+		// Named input parameters for target function.
+		cmd     string
+		args    []string
+		want    string
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{name: "pwd", cmd: "pwd", args: []string{}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, gotErr := (&TemplerFunc{}).execShell(tt.cmd, tt.args...)
+			if gotErr != nil {
+				if !tt.wantErr {
+					t.Errorf("shell() failed: %v", gotErr)
+				}
+				return
+			}
+			if tt.wantErr {
+				t.Fatal("shell() succeeded unexpectedly")
 			}
 		})
 	}
