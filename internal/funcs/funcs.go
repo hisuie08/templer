@@ -12,7 +12,6 @@ type TemplerFunc struct {
 	funcMap map[string]any
 }
 
-// TODO: カスタム関数動的読み込み未実装
 func New(o option.Option) *TemplerFunc {
 	funcMap := sprig.FuncMap()
 	t := &TemplerFunc{opt: o}

@@ -9,13 +9,11 @@ import (
 func Test_getPath(t *testing.T) {
 	wd, _ := os.Getwd()
 	tests := []struct {
-		name string // description of this test case
-		// Named input parameters for target function.
+		name    string
 		p       string
 		want    string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
 		{name: "lcl1", p: "./test.txt", want: filepath.Join(wd, "test.txt")},
 		{name: "lcl2", p: "test.txt", want: filepath.Join(wd, "test.txt")},
 		{name: "lcl3", p: "../test.txt", want: filepath.Join(wd, "../test.txt")},

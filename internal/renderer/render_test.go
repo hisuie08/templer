@@ -56,7 +56,6 @@ func Test_isValidDir(t *testing.T) {
 			if tt.wantErr {
 				t.Fatal("isValidDir() succeeded unexpectedly")
 			}
-			// TODO: update the condition below to compare got with tt.want.
 			if got != tt.want {
 				t.Errorf("isValidDir() = %v, want %v", got, tt.want)
 			}

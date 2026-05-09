@@ -73,7 +73,6 @@ func Test_hasMeta(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := hasMeta(tt.str)
-			// TODO: update the condition below to compare got with tt.want.
 			if got != tt.want {
 				t.Errorf("hasMeta() = %v, want %v", got, tt.want)
 			}
