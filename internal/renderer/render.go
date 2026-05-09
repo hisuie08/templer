@@ -2,6 +2,7 @@ package renderer
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -13,22 +14,25 @@ import (
 )
 
 func render(name, input string, outPath string,
-	data map[string]any, out output.Output,opt option.Option) error {
-	if out.IsStd() {
-		input = fixForOut(input)
-	}
-	t, err := newTmpl(name,opt).Parse(input)
+	data map[string]any, out output.Output, opt option.Option) error {
+	t, err := newTmpl(name, opt).Parse(input)
 	if err != nil {
 		return err
 	}
 	b := &bytes.Buffer{}
 	if err := t.Execute(b, data); err != nil {
+		if errors.Is(err, funcs.ErrShellDisabled) {
+			return funcs.ErrShellDisabled
+		}
 		return err
+	}
+	if out.IsStd() {
+		b = bytes.NewBufferString(fixForOut(b.String()))
 	}
 	return out.WriteFile(outPath, b.Bytes())
 }
 
-func newTmpl(name string,o option.Option) *template.Template {
+func newTmpl(name string, o option.Option) *template.Template {
 	return template.New(name).Funcs(funcs.New(o).Funcs())
 }
 func fixForOut(str string) string {

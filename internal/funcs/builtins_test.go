@@ -3,6 +3,7 @@ package funcs
 import (
 	"os"
 	"path/filepath"
+	"templer/internal/option"
 	"testing"
 )
 
@@ -42,19 +43,23 @@ func Test_readFile(t *testing.T) {
 
 func Test_shell(t *testing.T) {
 	tests := []struct {
-		name string // description of this test case
-		// Named input parameters for target function.
+		name    string
 		cmd     string
+		allow   bool
 		args    []string
 		want    string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
-		{name: "pwd", cmd: "pwd", args: []string{}},
+
+		{name: "disallow", cmd: "pwd", args: []string{},
+			allow: false, wantErr: true},
+		{name: "allow", cmd: "pwd", args: []string{},
+			allow: true, wantErr: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, gotErr := (&TemplerFunc{}).execShell(tt.cmd, tt.args...)
+			tf := &TemplerFunc{opt: option.Option{AllowShellExecution: tt.allow}}
+			_, gotErr := tf.execShell(tt.cmd, tt.args...)
 			if gotErr != nil {
 				if !tt.wantErr {
 					t.Errorf("shell() failed: %v", gotErr)
