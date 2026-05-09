@@ -60,18 +60,26 @@ func Execute() {
 }
 
 const data_help = `YAML (or JSON) format data <file|glob|str>:<value>
-file:<value> -> force value as file to read
-glob:<value> -> force value as glob pattern
-str:<value> -> force value as string literal`
+- file:<value> -> force value as file to read
+- glob:<value> -> force value as glob pattern
+- str:<value> -> force value as string literal
+`
+const out_help = `specify the output path
+- FILE required for <template> as string literal
+- DIR  required for <template> as directory
+- DIR/FILE required for <template> as file
+`
+const out_default_help = `write output beside the template file,removing the template suffix
+only works when <template> is a file or directory.`
 
 // TODO: templateもsuffixじゃなくてglobにしてもいいかも(検討中)
 func init() {
-	rootCmd.Flags().BoolVar(&opt.Template.AsLiteral, "literal", false, "ensure template as string")
+	rootCmd.Flags().BoolVar(&opt.Template.AsLiteral, "literal", false, "ensure template as strinn")
 	rootCmd.Flags().StringArrayVarP(&opt.DataArgs, "data", "d", []string{}, data_help)
 	rootCmd.Flags().BoolVar(&opt.DataStrictJson, "strict-json", false, "data in strict JSON format")
 	rootCmd.Flags().StringVar(&opt.Template.Suffix, "suffix", ".tmpl", "template file suffix")
-	rootCmd.Flags().StringVarP(&opt.OutDir, "outdir", "o", "", "write output files under the specified directory")
-	rootCmd.Flags().BoolVarP(&opt.OutDefault, "out", "O", false, "write output beside the template file, removing the template suffix")
+	rootCmd.Flags().StringVarP(&opt.OutDir, "out", "o", "", out_help)
+	rootCmd.Flags().BoolVarP(&opt.OutDefault, "out-default", "O", false, out_default_help)
 	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "K=V data entries\nALWAYS overwrite duplicate entries in --data. file|string")
 	rootCmd.Flags().BoolVar(&opt.IgnoreEnv, "no-env", false, "disable automatic loading of environment variables")
 	rootCmd.Flags().BoolVar(&opt.AllowShellExecution, "allow-shell-execution", false, "enable function shell command execution")
