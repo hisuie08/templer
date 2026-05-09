@@ -78,7 +78,8 @@ func Test_render(t *testing.T) {
 		input:   "{{Cwd}}{{Exec \"ls\"}}{{upper .value}}",
 		outPath: "/dev/null", data: map[string]any{"value": "test"},
 		out: output.OutController(t.Output()),
-		opt: option.Option{AllowShellExecution: true}, wantErr: false,
+		opt: option.Option{AllowShellExecution: true,
+			AllowedShell: []string{"ls"}}, wantErr: false,
 	}}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

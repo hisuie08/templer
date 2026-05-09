@@ -1,10 +1,12 @@
 package funcs
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"templer/internal/option"
 	"testing"
+	"time"
 )
 
 func Test_readFile(t *testing.T) {
@@ -41,33 +43,46 @@ func Test_readFile(t *testing.T) {
 	}
 }
 
-func Test_shell(t *testing.T) {
+func Test_execShell(t *testing.T) {
 	tests := []struct {
 		name    string
 		cmd     string
-		allow   bool
+		enable  bool
+		allowed []string
 		args    []string
-		want    string
-		wantErr bool
+		wantErr error
 	}{
 
-		{name: "disallow", cmd: "pwd", args: []string{},
-			allow: false, wantErr: true},
-		{name: "allow", cmd: "pwd", args: []string{},
-			allow: true, wantErr: false},
+		{name: "disable-disallow", cmd: "pwd", enable: false, wantErr: ErrShellDisabled},
+		{name: "disable-allow", cmd: "pwd", enable: false,
+			allowed: []string{"pwd"}, wantErr: ErrShellDisabled},
+		{name: "enable-allow", cmd: "pwd", enable: true,
+			allowed: []string{"pwd"}, wantErr: nil},
+		{name: "enable-disallow", cmd: "pwd", enable: true,
+			allowed: []string{}, wantErr: ErrShellDisallowed},
+		{name: "output-limit", cmd: "yes", allowed: []string{"yes"},
+			enable: true, wantErr: ErrOutputLimitExceeded},
+		{name: "timeout", cmd: "sleep", args: []string{"1"}, enable: true,
+			allowed: []string{"sleep"}, wantErr: ErrShellTimeout},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tf := &TemplerFunc{opt: option.Option{AllowShellExecution: tt.allow}}
+			tf := &TemplerFunc{opt: option.Option{
+				AllowShellExecution: tt.enable, AllowedShell: tt.allowed},
+				shellTimeout: 50 * time.Millisecond}
 			_, gotErr := tf.execShell(tt.cmd, tt.args...)
-			if gotErr != nil {
-				if !tt.wantErr {
-					t.Errorf("shell() failed: %v", gotErr)
+			if tt.wantErr == nil {
+				if gotErr != nil {
+					t.Fatalf("unexpected error: %v", gotErr)
 				}
 				return
 			}
-			if tt.wantErr {
-				t.Fatal("shell() succeeded unexpectedly")
+			if !errors.Is(gotErr, tt.wantErr) {
+				t.Fatalf(
+					"expected error %v, got %v",
+					tt.wantErr,
+					gotErr,
+				)
 			}
 		})
 	}

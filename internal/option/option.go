@@ -6,6 +6,7 @@ type Option struct {
 	OutDir              string
 	OutDefault          bool
 	AllowShellExecution bool
+	AllowedShell        []string
 	SetValues           []string
 	AllowEnv            bool
 	Template            Template

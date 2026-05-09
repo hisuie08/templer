@@ -1,10 +1,12 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
 	"templer/internal/context"
+	"templer/internal/funcs"
 	"templer/internal/option"
 	"templer/internal/output"
 	"templer/internal/process"
@@ -55,6 +57,10 @@ func Execute() {
 	rootCmd.Version = Version
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
+		if errors.Is(err, funcs.ErrShellDisabled) ||
+			errors.Is(err, funcs.ErrShellDisallowed) {
+			rootCmd.PrintErrln(funcs.ShellExecWarning)
+		}
 		os.Exit(1)
 	}
 }
@@ -82,4 +88,5 @@ func init() {
 	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "K=V data entries\nduplicate keys always override --data entries")
 	rootCmd.Flags().BoolVar(&opt.AllowEnv, "env", false, "enable automatic loading of environment variables")
 	rootCmd.Flags().BoolVar(&opt.AllowShellExecution, "allow-shell-execution", false, "enable function shell command execution")
+	rootCmd.Flags().StringArrayVar(&opt.AllowedShell, "allow-command", []string{}, "specify commands to allow execution")
 }

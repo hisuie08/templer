@@ -1,11 +1,14 @@
 package funcs
 
 import (
+	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 )
 
 func (t *TemplerFunc) readFile(path string) (string, error) {
@@ -24,27 +27,90 @@ func (t *TemplerFunc) cwd() (string, error) {
 	return os.Getwd()
 }
 
-var ErrShellDisabled error = errors.New(
-	"function 'Exec' disabled by default\nuse '--allow-shell-execution' to enable")
+const ShellExecWarning = `
+[WARNING] The 'Exec' function executes external commands from within templates
+  For safety:
+    1. Allow only the minimum necessary commands
+    2. Ensure you understand the contents of the <template>
+    3. Run in your own risk`
 
-var ErrShellExecution error = &errShelExecution{}
-
-type errShelExecution struct {
-	Command string
+type limitedBuffer struct {
+	buf      bytes.Buffer
+	maxBytes int64
+	written  int64
+	exceeded bool
 }
 
-func (e errShelExecution) Error() string {
-	return fmt.Sprintf("disallowed command: %s is not in whitelist", e.Command)
-}
-func (e errShelExecution) Unwrap() error {
-	return ErrShellExecution
+func (b *limitedBuffer) Len() int {
+	return b.buf.Len()
 }
 
-// TODO: 実行可能コマンドのセキュリティ
+func (b *limitedBuffer) Write(p []byte) (int, error) {
+	remain := b.maxBytes - b.written
+
+	if remain <= 0 {
+		b.exceeded = true
+		return 0, ErrOutputLimitExceeded
+	}
+
+	if int64(len(p)) > remain {
+		p = p[:remain]
+		b.exceeded = true
+	}
+
+	n, err := b.buf.Write(p)
+	b.written += int64(n)
+
+	if b.exceeded {
+		return n, ErrOutputLimitExceeded
+	}
+
+	return n, err
+}
+
+func (b *limitedBuffer) String() string {
+	return b.buf.String()
+}
+
 func (t *TemplerFunc) execShell(cmd string, args ...string) (string, error) {
 	if !t.opt.AllowShellExecution {
 		return "", ErrShellDisabled
 	}
-	out, err := exec.Command(cmd, args...).CombinedOutput()
-	return string(out), err
+	if !slices.Contains(t.opt.AllowedShell, cmd) {
+		return "", &ShellDisallowedError{Command: cmd}
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), t.shellTimeout)
+	defer cancel()
+
+	var stdout limitedBuffer
+	var stderr limitedBuffer
+
+	stdout.maxBytes = 1024 * 1024
+	stderr.maxBytes = 1024 * 1024
+
+	c := exec.CommandContext(ctx, cmd, args...)
+	c.Stdout = &stdout
+	c.Stderr = &stderr
+
+	err := c.Run()
+
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		return stdout.String(),
+			&ShellTimeOutError{
+				Command: cmd,
+			}
+	}
+	if stdout.exceeded || stderr.exceeded {
+		return stdout.String(),
+			ErrOutputLimitExceeded
+	}
+	if err != nil {
+		if stderr.Len() > 0 {
+			return stdout.String(), fmt.Errorf("%w: %s", err, stderr.String())
+		}
+		return stdout.String(), err
+	}
+
+	return stdout.String(), nil
 }
