@@ -16,7 +16,7 @@ var Version = "dev"
 var opt option.Option
 var rootCmd = &cobra.Command{
 	Args: cobra.MaximumNArgs(1),
-	Use:  "templer <template>",
+	Use:  "templer <template-file|dir|string>",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 0 {
 			opt.Template.Value = args[0]
@@ -59,28 +59,27 @@ func Execute() {
 	}
 }
 
-const data_help = `YAML (or JSON) format data <file|glob|str>:<value>
-- file:<value> -> force value as file to read
-- glob:<value> -> force value as glob pattern
-- str:<value> -> force value as string literal
-`
-const out_help = `specify the output path
-- FILE required for <template> as string literal
-- DIR  required for <template> as directory
-- DIR/FILE required for <template> as file
-`
-const out_default_help = `write output beside the template file,removing the template suffix
+const data_help = `YAML/JSON data source
+  auto-detects file, glob, or string
+  prefixes:
+    file:<v> force file
+    glob:<v> force glob
+    str:<v>  force string`
+const out_help = `output destination
+  - file path for single-file output
+  - directory path for directory template output`
+const out_default_help = `write output beside the template, removing the template suffix
 only works when <template> is a file or directory.`
 
 // TODO: templateもsuffixじゃなくてglobにしてもいいかも(検討中)
 func init() {
-	rootCmd.Flags().BoolVar(&opt.Template.AsLiteral, "literal", false, "ensure template as strinn")
+	rootCmd.Flags().BoolVar(&opt.Template.AsLiteral, "literal", false, "force <template> as literal string")
 	rootCmd.Flags().StringArrayVarP(&opt.DataArgs, "data", "d", []string{}, data_help)
-	rootCmd.Flags().BoolVar(&opt.DataStrictJson, "strict-json", false, "data in strict JSON format")
+	rootCmd.Flags().BoolVar(&opt.DataStrictJson, "strict-json", false, "parse --data values as strict JSON only")
 	rootCmd.Flags().StringVar(&opt.Template.Suffix, "suffix", ".tmpl", "template file suffix")
 	rootCmd.Flags().StringVarP(&opt.OutDir, "out", "o", "", out_help)
 	rootCmd.Flags().BoolVarP(&opt.OutDefault, "out-default", "O", false, out_default_help)
-	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "K=V data entries\nALWAYS overwrite duplicate entries in --data. file|string")
+	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "K=V data entries\nduplicate keys always override --data entries")
 	rootCmd.Flags().BoolVar(&opt.IgnoreEnv, "no-env", false, "disable automatic loading of environment variables")
 	rootCmd.Flags().BoolVar(&opt.AllowShellExecution, "allow-shell-execution", false, "enable function shell command execution")
 }
