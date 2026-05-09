@@ -1,7 +1,6 @@
 package renderer
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 )
@@ -26,12 +25,4 @@ func TestPath(t *testing.T) {
 
 		})
 	}
-}
-
-func TestStat(t *testing.T) {
-	wd, _ := os.Getwd()
-	t.Log("not join")
-	t.Log(filepath.Clean("../dir.go"))
-	t.Log("join")
-	t.Log(filepath.Join(wd, "/dir.go"))
 }
