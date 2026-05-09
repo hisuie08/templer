@@ -17,8 +17,6 @@ type Template struct {
 	Suffix    string
 }
 
-const OutSibling = "__SIBLING__"
-
 const MetaStr = "*?[]"
 
 var Prefix = struct {
