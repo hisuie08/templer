@@ -80,6 +80,6 @@ func init() {
 	rootCmd.Flags().StringVarP(&opt.OutDir, "out", "o", "", out_help)
 	rootCmd.Flags().BoolVarP(&opt.OutDefault, "out-default", "O", false, out_default_help)
 	rootCmd.Flags().StringArrayVar(&opt.SetValues, "set", nil, "K=V data entries\nduplicate keys always override --data entries")
-	rootCmd.Flags().BoolVar(&opt.IgnoreEnv, "no-env", false, "disable automatic loading of environment variables")
+	rootCmd.Flags().BoolVar(&opt.AllowEnv, "env", false, "enable automatic loading of environment variables")
 	rootCmd.Flags().BoolVar(&opt.AllowShellExecution, "allow-shell-execution", false, "enable function shell command execution")
 }

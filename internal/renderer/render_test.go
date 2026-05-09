@@ -19,8 +19,8 @@ func Test_fixForOut(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := fixForOut(tt.str)
-			if got != tt.want {
+			got := fixForOut([]byte(tt.str), true)
+			if string(got) != tt.want {
 				t.Fatalf("want: %s but got %s", tt.want, got)
 			}
 		})

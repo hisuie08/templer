@@ -7,7 +7,7 @@ type Option struct {
 	OutDefault          bool
 	AllowShellExecution bool
 	SetValues           []string
-	IgnoreEnv           bool
+	AllowEnv            bool
 	Template            Template
 }
 

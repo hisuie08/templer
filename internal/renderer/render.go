@@ -2,10 +2,7 @@ package renderer
 
 import (
 	"bytes"
-	"errors"
-	"fmt"
 	"os"
-	"strings"
 	"templer/internal/context"
 	"templer/internal/funcs"
 	"templer/internal/option"
@@ -21,26 +18,20 @@ func render(name, input string, outPath string,
 	}
 	b := &bytes.Buffer{}
 	if err := t.Execute(b, data); err != nil {
-		if errors.Is(err, funcs.ErrShellDisabled) {
-			return funcs.ErrShellDisabled
-		}
 		return err
 	}
-	if out.IsStd() {
-		b = bytes.NewBufferString(fixForOut(b.String()))
-	}
-	return out.WriteFile(outPath, b.Bytes())
+	return out.WriteFile(outPath, fixForOut(b.Bytes(), out.IsStd()))
 }
 
 func newTmpl(name string, o option.Option) *template.Template {
 	return template.New(name).Funcs(funcs.New(o).Funcs())
 }
-func fixForOut(str string) string {
-	result := str
-	if !strings.HasSuffix(str, "\n") {
-		result = fmt.Sprintln(str)
+func fixForOut(b []byte, isStd bool) []byte {
+	nl := []byte("\n")
+	if !bytes.HasSuffix(b, nl) {
+		b = append(b, nl...)
 	}
-	return result
+	return b
 }
 func isValidDir(path string) (bool, error) {
 	if i, err := os.Stat(path); err == nil {
