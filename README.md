@@ -2,10 +2,9 @@
 go製cliテンプレートエンジン「テンプラ🍤」
 
 # インストール
-以下のから最新バイナリをダウンロード
 
 ### Supported platforms
-
+各プラットフォームの最新リリース
 |OS |archtechure |
 |-|-|
 |windows |[amd64](https://github.com/hisuie08/templer/releases/latest/download/templer_windows_amd64.exe)|
