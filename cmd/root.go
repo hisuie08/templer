@@ -27,7 +27,7 @@ var rootCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
-			if len(b) == 0 {
+			if len(b) == 0 && !opt.WithInspect {
 				return cmd.Root().Help()
 			}
 			opt.Template.Value = string(b)
@@ -89,4 +89,5 @@ func init() {
 	rootCmd.Flags().BoolVar(&opt.AllowEnv, "env", false, "enable automatic loading of environment variables")
 	rootCmd.Flags().BoolVar(&opt.AllowShellExecution, "allow-shell-execution", false, "enable function shell command execution")
 	rootCmd.Flags().StringArrayVar(&opt.AllowedShell, "allow-command", []string{}, "specify commands to allow execution")
+	rootCmd.Flags().BoolVar(&opt.WithInspect, "inspect", false, "show loaded data")
 }

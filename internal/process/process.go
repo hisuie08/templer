@@ -9,6 +9,8 @@ import (
 	"templer/internal/option"
 	"templer/internal/parser"
 	"templer/internal/renderer"
+
+	"gopkg.in/yaml.v3"
 )
 
 type Process struct {
@@ -21,6 +23,13 @@ func (p *Process) Run() error {
 		p.Opt.Template.Suffix = fmt.Sprintf(".%s", p.Opt.Template.Suffix)
 	}
 	data, err := parser.New(p.Opt, p.Ctx).Parse()
+	if p.Opt.WithInspect {
+		b, err := yaml.Marshal(data)
+		if err != nil {
+			return err
+		}
+		p.Ctx.Log.Write(append(b, []byte("\n")...))
+	}
 	if err != nil {
 		return err
 	}

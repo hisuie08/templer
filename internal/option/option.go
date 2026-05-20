@@ -3,6 +3,7 @@ package option
 type Option struct {
 	DataArgs            []string
 	DataStrictJson      bool
+	WithInspect         bool
 	OutDir              string
 	OutDefault          bool
 	AllowShellExecution bool
