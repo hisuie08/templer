@@ -16,6 +16,10 @@ type TemplerFunc struct {
 
 func New(o option.Option) *TemplerFunc {
 	funcMap := sprig.FuncMap()
+	if !o.AllowEnv {
+		delete(funcMap, "env")
+		delete(funcMap, "expandenv")
+	}
 	t := &TemplerFunc{opt: o, shellTimeout: 3 * time.Second}
 	maps.Copy(funcMap, map[string]any{
 		"ReadFile": t.readFile,

@@ -8,6 +8,7 @@ import (
 	"templer/internal/option"
 	"templer/internal/output"
 	"text/template"
+	"text/template/parse"
 )
 
 func render(name, input string, outPath string,
@@ -17,7 +18,7 @@ func render(name, input string, outPath string,
 		return err
 	}
 	b := &bytes.Buffer{}
-	if err := t.Execute(b, data); err != nil {
+	if err = t.Execute(b, data); err != nil {
 		return err
 	}
 	return out.WriteFile(outPath, fixForOut(b.Bytes(), out.IsStd()))
@@ -39,6 +40,61 @@ func isValidDir(path string) (bool, error) {
 	} else {
 		return false, err
 	}
+}
+
+func hasFunc(tree *parse.Tree, name string) bool {
+	var found bool
+
+	var walk func(parse.Node)
+	walk = func(n parse.Node) {
+		if n == nil || found {
+			return
+		}
+
+		switch x := n.(type) {
+		case *parse.ListNode:
+			for _, node := range x.Nodes {
+				walk(node)
+			}
+
+		case *parse.ActionNode:
+			walk(x.Pipe)
+
+		case *parse.PipeNode:
+			for _, cmd := range x.Cmds {
+				walk(cmd)
+			}
+
+		case *parse.CommandNode:
+			if len(x.Args) > 0 {
+				if id, ok := x.Args[0].(*parse.IdentifierNode); ok && id.Ident == name {
+					found = true
+					return
+				}
+			}
+
+		case *parse.IfNode:
+			walk(x.Pipe)
+			walk(x.List)
+			walk(x.ElseList)
+
+		case *parse.RangeNode:
+			walk(x.Pipe)
+			walk(x.List)
+			walk(x.ElseList)
+
+		case *parse.WithNode:
+			walk(x.Pipe)
+			walk(x.List)
+			walk(x.ElseList)
+
+		case *parse.TemplateNode:
+			// 必要なら named template 辿る
+		}
+	}
+
+	walk(tree.Root)
+	return found
 }
 
 type Renderer interface {
